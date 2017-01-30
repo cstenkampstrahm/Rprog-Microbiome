@@ -3,6 +3,10 @@
 
 # import the OTU table, the mapping file, then merge them into a phyloseq file
 library("phyloseq")
+# based on phyloseq vignette says to also load the ggplot2 library, and set a
+# black and white theme
+library("ggplot2")
+theme_set(theme_bw())
 biom_file <- "otu_table_mc2_w_tax_no_pynast_failures.biom"
 map_file <- "QIIME_map_all_corrected_new.txt"
 biomot = import_biom(biom_file, parseFunction = parse_taxonomy_default)
@@ -43,7 +47,65 @@ cow_samps <- c("50A", "50B", "50C", "50D", "50E", "71A", "71B", "71C", "71D", "6
 Cowonly <- prune_samples(cow_samps, Cowdata)
 Enviroonly <- prune_samples(enviro_samps, Cowdata)
 
+# now going to estimate richness (observed only when not normalized) for cows:
+obsrich_values <- estimate_richness(Cowonly, measures="Observed")
+
+# want to export the data made
+library("xlsx")
+write.xlsx(obsrich_values, "obsrich_values.xlsx")
+
+# added the excel values for richness on to the original QIIME mapping file
+# now with only the cows on it (because smaple 7A had a value of 1 put NA for 
+# richness value) and also got rid of redundant/non-useful variables for cow 
+# analyses. Going to import back into phyloseq, then export to metagenomeSeq
+# MRexperiment in order to do cumulative sum scaling prior to measuring Shannons 
+# and evenness:
+new_map_file <- "Cow_map_wrichness.txt"
+bmsd = import_qiime_sample_data(new_map_file)
+Cowdatarich <- merge_phyloseq(biomot, bmsd)
+Cowdatarich
+library(metagenomeSeq)
+MRexp_cowonly <- phyloseq_to_metagenomeSeq(Cowdatarich)
+
+# MetagenomeSeq workflow: Goal is to take MRExperiment file changed and imported through
+# phyloseq originally, and use cumulative sum scaling to normalize the count data
+# (this is 'assay data' in an MRexperiment). Then will import back to phyloseq to 
+# measure both Shannon's and Evenness for the samples. 
+
+# First will normalize the counts of the MRExperiment counts (OTU table)
+
+NormCounts <- MRcounts(MRexp_cowonly, norm=TRUE, log=FALSE)
+exportMat(NormCounts, file = file.path("NormalizedBiom.tsv"))
+
+# Now will try to make a new Phyloseq experiment with the normalized biom table,
+# importing taxonomy table used previously:
+norm_otu_table <- otu_table(NormCounts, taxa_are_rows = TRUE)
+new_tax_table <- tax_table(Cowonly)
+Normcowdata <- merge_phyloseq(norm_otu_table, bmsd, new_tax_table)
+Normcowdata 
+
+# Measuring Shannon's and Evenness in the samples:
+shannon_values <- estimate_richness(Normcowdata, measures="Shannon")
+write.xlsx(shannon_values, "shannon_values.xlsx")
+# Got this error:
+# Warning message:
+#In estimate_richness(Normcowdata, measures = "Shannon") :
+#  The data you have provided does not have
+#any singletons. This is highly suspicious. Results of richness
+#estimates (for example) are probably unreliable, or wrong, if you have already
+#trimmed low-abundance taxa from the data.
+# Because of this will estimate shannon's without doing the normalization first
+# and ask Zaid about it:
+shannon_nonnorm_values <- estimate_richness(Cowonly, measures="Shannon")
+write.xlsx(shannon_nonnorm_values, "shannon_nonnorm_values.xlsx")
+
+
+
+## MESSING AROUND WITH PACKAGE A BIT:
 # look at richness based on pathotype metric:
+p <- plot_richness(Cowonly, x = "Pathotype", color = "Parity", measures = "Observed")
+
+# pq <- p + geom_boxplot(data=sample_data(Cowonly), aes(x=Pathotype, y=value, color=Null), alpha=0.1)
 plot_richness(Cowonly, x = "Pathotype", color = "Parity")
 plot_richness(Cowonly, x = "Pathotype_1", color = "Parity")
 plot_richness(Cowonly, x = "Pattern_1", color = "Parity")
