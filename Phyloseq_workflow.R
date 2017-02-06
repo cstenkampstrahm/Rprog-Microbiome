@@ -92,12 +92,49 @@ write.xlsx(shannon_values, "shannon_values.xlsx")
 #In estimate_richness(Normcowdata, measures = "Shannon") :
 #  The data you have provided does not have
 #any singletons. This is highly suspicious. Results of richness
-#estimates (for example) are probably unreliable, or wrong, if you have already
-#trimmed low-abundance taxa from the data.
+# estimates (for example) are probably unreliable, or wrong, if you have already
+# trimmed low-abundance taxa from the data.
 # Because of this will estimate shannon's without doing the normalization first
 # and ask Zaid about it:
 shannon_nonnorm_values <- estimate_richness(Cowonly, measures="Shannon")
 write.xlsx(shannon_nonnorm_values, "shannon_nonnorm_values.xlsx")
+
+# After reviewing Paulson et al., seems that it is innapropriate to normalize 
+# the data prior to alpha diversity metrics. Added these measures to the cow 
+# only mapping file from before, but not normalized.
+# How to calculate evenness? 
+# http://sciencing.com/calculate-species-evenness-2851.html
+# Divide Shannon's diversity index H by natural logarithm of species richness ln(S) 
+# to calculate the species evenness. In the example, 0.707 divided by 1.099 equals 
+# 0.64. Note that species evenness ranges from zero to one, with zero signifying no 
+# evenness and one, a complete evenness.
+# calculated this in excel under a column called evenness. Saved as txt and exported 
+# back with the now normalized OTU table
+
+# After talking with Zaid on 2.6.17, decided that because we are modeling the alpha
+# diversity measures, we must normalize them. Otherwise some may be sequenced 
+# deeper than others, and we have a biased estimate in who is there as it can be
+# due to the level at which is was sequenced. Will take the NormCowData (already 
+# normalized)phyloseq file and merge it with the new mapping metadata file, 
+# then determine richness, shannons, and calculate evenness as done prior.
+Updated_map <- import_qiime_sample_data("Cow_map_wrichnshansneven.txt")
+Normcowdatanew <- merge_phyloseq(norm_otu_table, Updated_map, new_tax_table)
+normshannon_values <- estimate_richness(Normcowdatanew, measures="Shannon")
+
+# Because richness estimation only allows integers, need to put the OTU table
+# with normalized counts to a single digit before using the estimate richness 
+# command. rounding won't work because values <0.4 will be zero. Will use ceiling
+# command:
+integeronlyOTU <- ceiling(NormCounts)
+rich_otu_table <- otu_table(integeronlyOTU, taxa_are_rows = TRUE)
+norm_phyloseq_for_richness <- merge_phyloseq(rich_otu_table, Updated_map, new_tax_table)
+normrich_values <- estimate_richness(norm_phyloseq_for_richness, measures="Observed")
+
+write.xlsx(normshannon_values, "normshannon_values.xlsx")
+write.xlsx(normrich_values, "normrich_values.xlsx")
+
+# added values to new xlsx and imported back as .txt with the same name as prior
+# but with normed on the end, Cow_map_wrichnshansnevennormed.txt
 
 
 
