@@ -134,7 +134,7 @@ write.xlsx(normshannon_values, "normshannon_values.xlsx")
 write.xlsx(normrich_values, "normrich_values.xlsx")
 
 # added values to new xlsx and imported back as .txt with the same name as prior
-# but with normed on the end, Cow_map_wrichnshansnevennormed.txt
+# but with normed on the end; Cow_map_wrichnshansnevennormed.txt
 
 
 

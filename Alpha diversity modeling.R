@@ -37,7 +37,7 @@ shapiro.test(alpha_div$Normeven)
 # W = 0.98961, p-value = 0.1666
 
 # Going to check the qqplot, looks like all values but the evenness are NOT 
-# normally distributed
+# normally distributed, esp richness. shannons really hard to tell....
 qqnorm(alpha_div$Normeven, ylab= "Evenness")
 qqnorm(alpha_div$Normrich, ylab= "Richness")
 qqnorm(alpha_div$Normshann, ylab= "Shannons")
@@ -55,15 +55,71 @@ shapiro.test(alpha_div$Normshann1)
 # data:  alpha_div$Normshann1
 # W = 0.94952, p-value = 2.11e-06
 
+# Discussed the issues of normality with Ryan Gan on 2/8/27. Showed qq plots
+# etc. Because plots look VERY close to normal... and the log transforming does
+# not change the shapiro wilk outcome, it shows that the distributions are robust
+# and we can conclude that the normality is good enough for our model assumptions
+# will continue to model using the Normshann, Normeven, Normrich as fixed effects
+# Further discussed how to put the random effects in for the pattern and ev nev 
+# metrics of interest. Probably only stratify by farm and cow, since every day
+# we have classified as the same with an individual, yet we have still sampled them
+# five repeated times on different farms.
+
+
+#EVENNESS AND PATHOTYPE, PATTERN, EVNEV:
 m1.lme4.even <- lmer(Normeven ~ Pathotype_1 + (1|Individual_animal) +
                      (1|Day) + (1|Farm), data = alpha_div)
 summary(m1.lme4.even)
 anova(m1.lme4.even)
+
+m2.lme4.even <- lmer(Normeven ~ Pattern_1 + (1|Individual_animal) + (1|Farm), 
+                     data = alpha_div)
+summary(m2.lme4.even)
+anova(m2.lme4.even)
+
+m3.lme4.even <- lmer(Normeven ~ EvNev_1 + (1|Individual_animal) + (1|Farm), 
+                     data = alpha_div)
+summary(m3.lme4.even)
+anova(m3.lme4.even)
+
+#RICHNESS AND PATHOTYPE, PATTERN, EVNEV:
+m1.lme4.rich <- lmer(Normrich ~ Pathotype_1 + (1|Individual_animal) +
+                       (1|Day) + (1|Farm), data = alpha_div)
+summary(m1.lme4.rich)
+anova(m1.lme4.rich)
+
+m2.lme4.rich <- lmer(Normrich ~ Pattern_1 + (1|Individual_animal) + (1|Farm), 
+                     data = alpha_div)
+summary(m2.lme4.rich)
+anova(m2.lme4.rich)
+
+m3.lme4.rich <- lmer(Normrich ~ EvNev_1 + (1|Individual_animal) + (1|Farm), 
+                     data = alpha_div)
+summary(m3.lme4.rich)
+anova(m3.lme4.rich)
+
+#SHANNONS AND PATHOTYPE, PATTERN, EVNEV:
+m1.lme4.shann <- lmer(Normshann ~ Pathotype_1 + (1|Individual_animal) +
+                       (1|Day) + (1|Farm), data = alpha_div)
+summary(m1.lme4.shann)
+anova(m1.lme4.shann)
+
+m2.lme4.shann <- lmer(Normshann ~ Pattern_1 + (1|Individual_animal) + (1|Farm), 
+                     data = alpha_div)
+summary(m2.lme4.shann)
+anova(m2.lme4.shann)
+
+m3.lme4.shann <- lmer(Normshann ~ EvNev_1 + (1|Individual_animal) + (1|Farm), 
+                     data = alpha_div)
+summary(m3.lme4.shann)
+anova(m3.lme4.shann)
+
+
+
 #Output (how do I know if it's significant? look at an f distribution table I imagine)
-#Analysis of Variance Table
-#Df     Sum Sq    Mean Sq F value
-#Pathotype_1  1 2.5998e-07 2.5998e-07   6e-04
+
 # going to look into evaluating p-values
+
 library(pbkrtest)
 PBmodcomp(m1.lme4.even)
 
