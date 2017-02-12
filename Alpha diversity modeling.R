@@ -66,54 +66,137 @@ shapiro.test(alpha_div$Normshann1)
 # five repeated times on different farms.
 
 
-#EVENNESS AND PATHOTYPE, PATTERN, EVNEV:
+#EVENNESS 
+
+#Pathotype
 m1.lme4.even <- lmer(Normeven ~ Pathotype_1 + (1|Individual_animal) +
                      (1|Day) + (1|Farm), data = alpha_div)
 summary(m1.lme4.even)
 anova(m1.lme4.even)
 
+# calculating the null model so can compare max liklihood estimates and pvals
+# added REML=FALSE to above too
+m1.lme4.even <- lmer(Normeven ~ Pathotype_1 + (1|Individual_animal) +
+                       (1|Farm), data = alpha_div, REML=FALSE)
+m1.lme4.evennull <- lmer(Normeven ~ (1|Individual_animal) +
+                       (1|Farm), data = alpha_div, REML=FALSE)
+
+anova(m1.lme4.evennull,m1.lme4.even)
+
+#Got the following output:
+#Data: alpha_div
+#Models:
+ # m1.lme4.evennull: Normeven ~ (1 | Individual_animal) + (1 | Day) + (1 | Farm)
+#m1.lme4.even: Normeven ~ Pathotype_1 + (1 | Individual_animal) + (1 | Day) + 
+#  m1.lme4.even:     (1 | Farm)
+#Df     AIC     BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+#m1.lme4.evennull  5 -880.83 -864.44 445.41  -890.83                        
+#m1.lme4.even      6 -878.83 -859.16 445.41  -890.83 2e-04      1     0.9877
+
+#Pattern
 m2.lme4.even <- lmer(Normeven ~ Pattern_1 + (1|Individual_animal) + (1|Farm), 
                      data = alpha_div)
 summary(m2.lme4.even)
 anova(m2.lme4.even)
 
+# calc the null
+m2.lme4.even <- lmer(Normeven ~ Pattern_1 + (1|Individual_animal) +
+                       (1|Farm), data = alpha_div, REML=FALSE)
+m2.lme4.evennull <- lmer(Normeven ~ (1|Individual_animal) +
+                           (1|Farm), data = alpha_div, REML=FALSE)
+anova(m2.lme4.evennull,m2.lme4.even)
+
+#EvNev
 m3.lme4.even <- lmer(Normeven ~ EvNev_1 + (1|Individual_animal) + (1|Farm), 
                      data = alpha_div)
 summary(m3.lme4.even)
 anova(m3.lme4.even)
+#calc the null
+m3.lme4.even <- lmer(Normeven ~ EvNev_1 + (1|Individual_animal) +
+                       (1|Farm), data = alpha_div, REML=FALSE)
+m3.lme4.evennull <- lmer(Normeven ~ (1|Individual_animal) +
+                           (1|Farm), data = alpha_div, REML=FALSE)
+anova(m3.lme4.evennull,m3.lme4.even)
 
-#RICHNESS AND PATHOTYPE, PATTERN, EVNEV:
+
+#RICHNESS 
+#Pathotype
 m1.lme4.rich <- lmer(Normrich ~ Pathotype_1 + (1|Individual_animal) +
-                       (1|Day) + (1|Farm), data = alpha_div)
+                       (1|Farm), data = alpha_div)
 summary(m1.lme4.rich)
 anova(m1.lme4.rich)
+#calc the null
+m1.lme4.rich <- lmer(Normrich ~ Pathotype_1 + (1|Individual_animal) +
+                       (1|Farm), data = alpha_div, REML=FALSE)
+m1.lme4.richnull <- lmer(Normrich ~ (1|Individual_animal) +
+                           (1|Farm), data = alpha_div, REML=FALSE)
 
+anova(m1.lme4.richnull,m1.lme4.rich)
+#Pattern
 m2.lme4.rich <- lmer(Normrich ~ Pattern_1 + (1|Individual_animal) + (1|Farm), 
                      data = alpha_div)
 summary(m2.lme4.rich)
 anova(m2.lme4.rich)
+#calc the null
+m2.lme4.rich <- lmer(Normrich ~ Pattern_1 + (1|Individual_animal) +
+                       (1|Farm), data = alpha_div, REML=FALSE)
+m2.lme4.richnull <- lmer(Normrich ~ (1|Individual_animal) +
+                           (1|Farm), data = alpha_div, REML=FALSE)
 
+anova(m2.lme4.richnull,m2.lme4.rich)
+#EvNev
 m3.lme4.rich <- lmer(Normrich ~ EvNev_1 + (1|Individual_animal) + (1|Farm), 
                      data = alpha_div)
 summary(m3.lme4.rich)
 anova(m3.lme4.rich)
+#calc the null
+m3.lme4.rich <- lmer(Normrich ~ EvNev_1 + (1|Individual_animal) +
+                       (1|Farm), data = alpha_div, REML=FALSE)
+m3.lme4.richnull <- lmer(Normrich ~ (1|Individual_animal) +
+                           (1|Farm), data = alpha_div, REML=FALSE)
 
-#SHANNONS AND PATHOTYPE, PATTERN, EVNEV:
+anova(m3.lme4.richnull,m3.lme4.rich)
+
+
+#SHANNONS 
+#Pathotype
 m1.lme4.shann <- lmer(Normshann ~ Pathotype_1 + (1|Individual_animal) +
-                       (1|Day) + (1|Farm), data = alpha_div)
+                       (1|Farm), data = alpha_div)
 summary(m1.lme4.shann)
 anova(m1.lme4.shann)
+#calc the null
+m1.lme4.shann <- lmer(Normshann ~ Pathotype_1 + (1|Individual_animal) +
+                       (1|Farm), data = alpha_div, REML=FALSE)
+m1.lme4.shannnull <- lmer(Normshann ~ (1|Individual_animal) +
+                           (1|Farm), data = alpha_div, REML=FALSE)
 
+anova(m1.lme4.shannnull,m1.lme4.shann)
+
+#Pattern
 m2.lme4.shann <- lmer(Normshann ~ Pattern_1 + (1|Individual_animal) + (1|Farm), 
                      data = alpha_div)
 summary(m2.lme4.shann)
 anova(m2.lme4.shann)
+#calc the null
+m2.lme4.shann <- lmer(Normshann ~ Pattern_1 + (1|Individual_animal) +
+                        (1|Farm), data = alpha_div, REML=FALSE)
+m2.lme4.shannnull <- lmer(Normshann ~ (1|Individual_animal) +
+                            (1|Farm), data = alpha_div, REML=FALSE)
 
+anova(m2.lme4.shannnull,m2.lme4.shann)
+
+#EvNev
 m3.lme4.shann <- lmer(Normshann ~ EvNev_1 + (1|Individual_animal) + (1|Farm), 
                      data = alpha_div)
 summary(m3.lme4.shann)
 anova(m3.lme4.shann)
+#calc the null
+m3.lme4.shann <- lmer(Normshann ~ EvNev_1 + (1|Individual_animal) +
+                        (1|Farm), data = alpha_div, REML=FALSE)
+m3.lme4.shannnull <- lmer(Normshann ~ (1|Individual_animal) +
+                            (1|Farm), data = alpha_div, REML=FALSE)
 
+anova(m3.lme4.shannnull,m3.lme4.shann)
 
 
 #Output (how do I know if it's significant? look at an f distribution table I imagine)
