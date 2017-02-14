@@ -10,8 +10,8 @@ library("xlsx")
 library("lme4")
 
 # removed the one sample with NA values (7A)
-alpha_div <- read.xlsx("Cow_map_wrichnshansnevennormed.xlsx", 1)
 
+alpha_div <- read.xlsx("Cow_map_wrichnshansnevennormed.xlsx", 1)
 # need to check for normality of Normrich Normshann Normeven. Must convert to 
 # class numeric
 
@@ -68,7 +68,7 @@ shapiro.test(alpha_div$Normshann1)
 
 #EVENNESS 
 
-#Pathotype
+###Pathotype
 m1.lme4.even <- lmer(Normeven ~ Pathotype_1 + (1|Individual_animal) +
                      (1|Day) + (1|Farm), data = alpha_div)
 summary(m1.lme4.even)
