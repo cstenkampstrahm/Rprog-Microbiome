@@ -154,4 +154,6 @@ path15 = prune_taxa(TopOTUs, Cowonly)
 
 
 plot_bar(path15, "Pathotype_1", fill = "Parity")
+
+plot_heatmap(Normcowdatanew, "NMDS", "bray", "SampleID", "Family")
   

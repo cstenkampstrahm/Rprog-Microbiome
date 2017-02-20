@@ -59,17 +59,20 @@ patt_even <- alpha_div %>% group_by(Pattern_1) %>%
             pattevenmin = min(Evenness),pattevenmax = max(Evenness), 
             pattnval = n())
 ###placed value output in the excel sheet that had the other test output for
+#also added a column with n values and calculated the std error (sd/sqrt(n))
+#per zaid recommendation, need se's on the graph 
 ###modeling in it
 library(ggthemes)
-plotting <- read.xlsx("Test output for alpha div models.xlsx", 4)
-plotting <- mutate(plotting, errorbarSD = as.numeric(0.5*SD))
+library(xlsx)
+plotting <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 4)
+plotting <- mutate(plotting, errorbarSE = as.numeric(0.5*Error))
 
 plot_1 <- ggplot(plotting, aes(x=Data, y=Value, fill = Type)) + 
-                   geom_bar(stat="identity", colour="black",position="dodge", 
+                   geom_bar(stat="identity", colour="white",position="dodge", 
                             show.legend = FALSE, width=0.5) +
-                    geom_errorbar(aes(ymin = Value-errorbarSD, 
-                    ymax = Value+errorbarSD),
-                    width=.2) +
+                    geom_errorbar(aes(ymin = Value-errorbarSE, 
+                    ymax = Value+errorbarSE),
+                    width=.1, color = "red") +
                    facet_grid(alpha_measure~Type, scales = "free") + 
                   xlab('') + ylab("Alpha Diversity Value") +
                   theme_bw() +

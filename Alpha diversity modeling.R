@@ -43,13 +43,13 @@ qqnorm(alpha_div$Normrich, ylab= "Richness")
 qqnorm(alpha_div$Normshann, ylab= "Shannons")
 
 # will try to log transform??
-alpha_div$Normrich1 <-log10(10*alpha_div$Normrich)
+alpha_div$Normrich1 <-log10(alpha_div$Normrich)
 shapiro.test(alpha_div$Normrich1)
 
 # data:  alpha_div$Normrich1
 # W = 0.79537, p-value = 2.699e-15
 
-alpha_div$Normshann1 <- log10(10*alpha_div$Normshann)
+alpha_div$Normshann1 <- log10(alpha_div$Normshann)
 shapiro.test(alpha_div$Normshann1)
 
 # data:  alpha_div$Normshann1
