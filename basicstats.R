@@ -5,7 +5,8 @@ library(ggplot2)
 library(metagenomeSeq)
 library(cluster)
 library(NbClust)
-source(file="files from zaid/functions.R")
+library(tidyverse)
+source(file="files from zaid/functions_1.R")
 
 ### using non normalized phyloseq experiment object from phyloseq_workflow.R
 OTUS <- otu_table(Cowdatarich)
@@ -36,9 +37,20 @@ otu.nm = colnames(OTUS)
 # made the OTU values a new column. Now try to select only the ones left in my 
 # OTU table after pruning:
 taxa.df = taxanew[taxanew$OTU%in%otu.nm,]
+
+### Before continuing on with this analysis, need to generate the taxa.df similar
+### to the version that zaid has, where there is numbered rows, a column of OTUs,
+### their size in the next column, and then the taxa full name in the next column
+
+taxa1.df <- unite(taxa.df, col = bacteria, Rank1:Rank7, sep = " ;")
+#changed the 1s to 2s for column spec, changed the 3 to 1 for column spec, also
+# changed the strspl to "\\;" to match space and semi colon in 
+#taxa split combine function in functions_1 script. Having trouble with 'temp'
+#line, unable to decipher what this means exactly in the function....
+
 ####### OTU Analysis
 ### (6 = otu/species) otu analysis
-d.taxa.ls = taxa.split.combine.ftn(taxa=taxa.df,d.df=OTUS,l=7)
+d.taxa.ls = taxa.split.combine.ftn(taxa=taxa1.df,d.df=OTUS,l=level)
 d.df = d.taxa.ls[[1]]
 taxa.vt = d.taxa.ls[[2]]
 
@@ -47,7 +59,8 @@ d.rs = apply(OTUS,1,sum)
 hist(d.rs)
 
 ### did we sample these communities well? (Rarifaction curves)
-rarecurve(x=d.df,col=1:length(d.rs)) ## this is bogging down computer, just 
+rarecurve(x=d.df,col=1:length(d.rs)) 
+## this is bogging down computer, just 
 ## ends up running forever. Will try to specify the first day samples
 rarecurve(x=d.df[c(2,14,23,25,33,38,39,43,51,56,57,58,68,71,83,90,94,
                     95,106,114,118,122,129,135,140,141,143,153,156,158,
@@ -60,10 +73,11 @@ day1rarecurve <- rarecurve(x=d.df[c(2,14,23,25,33,38,39,43,51,56,57,58,68,71,83,
 ### A look at proportions before normalizing
 bar.taxa.sample.ftn(d.df,cutoff=.01)
 ### Try to make a bar taxa plot just with the day 1 cows, without the 18 & 7.....
-bar.taxa.sample.ftn(d.df[c(2,14,23,25,33,38,39,43,51,56,57,58,68,71,83,90,94,
+day1bartaxa <- bar.taxa.sample.ftn(d.df[c(2,14,23,25,33,38,39,43,51,56,57,58,68,71,83,90,94,
                            95,106,114,118,122,129,135,140,141,143,153,156,158,
                            163,166,173,176,178,180),],cutoff=.01)
-
+### What does it mean for a cutoff of 0.01? Tried to understand by looking at function,
+### and still not sure. For the day 1 cows have 68 in the legend, for all cows have 119...
 ### Diversity analysis (old fashioned ecological approach [richness and diversity])
 d.otu = otu_table(d.df,taxa_are_rows = FALSE)
 #plot_richness(d.otu)

@@ -79,5 +79,16 @@ plot_1 <- ggplot(plotting, aes(x=Data, y=Value, fill = Type)) +
                   theme(axis.text.x = element_text(angle = 45, hjust = 1),
                         panel.background = element_rect(fill = "white"))
 
-                    
-                
+ ### getting some stats for Table 1 based on shedding status of cows
+library(tidyverse)
+EvNevsummary <- alpha_div %>% group_by(Farm, Individual_animal) %>% 
+  summarise(EvNev_1 = sum(EvNev_1))
+
+patternsummary <- alpha_div %>% group_by(Farm, Individual_animal) %>%
+  summarise(Pattern = sum(Pattern_1))
+
+pathotypesummary <- alpha_div %>% group_by(Farm, Day) %>%
+  summarise(Pathotype_1 = sum(Pathotype_1), n = n())
+
+### double check the values
+dgaf <- alpha_div %>% select(Farm, Day, Pathotype_1) %>% group_by(Farm, Day)  

@@ -11,7 +11,7 @@ taxa.split.combine.ftn = function(taxa, d.df, l = 7){
   taxa.names = strsplit(as.character(taxa[,3]),split=";")
   taxa.vt = c()
   for(i in 1:length(taxa[,1])){
-    temp = strsplit(taxa.names[[i]][l],split='\\(')
+    temp = strsplit(taxa.names[[i]][1],split='\\(')
     taxa.vt[i] = temp[[1]][1]
   }
   ### Combining on family

@@ -211,3 +211,251 @@ library(nlme)
 m1.nlme.even <- lme(Normeven ~ Pathotype_1, random = ~ 1|c(Individual_animal, 
               Day, Farm), data = alpha_div)
 # code above is not working.....
+
+## Discussed these models in class during epi meeting on 2/16/17- Sheryl suggests just doing 
+# a simple linear regression:One problem is the hierarchy of the random effects model 
+#when my outcome (for pattern and ev nev) is clustered at the cow level. Sheryl is 
+#saying to try a simple linear regression, making dummy variables for the 0, 1, 2 category 
+#(so they are all either 0 or 1) and then run a regression using ‘cow’ as an additional 
+#variable in the model to control for it. But first should just do the simple linear with 
+#the dummy variables and see if it is significant. Then do the same thing with the ever never
+#outcome.  Maggie Clark in the meeting thinks that the number of cows is going to be small 
+#enough that adding the variable ‘cow’ might not make a difference, including the clustering 
+#variable for ‘farm’ as well. For the Sample level outcome can do the same linear regression 
+#for pathotype…..
+library(ggplot2)
+# made the dummy variables in excel in the cowmapwrichnshansnevennormed sheet. Path_1.0, Path_1.1,
+# for the values for 0,1, for Pathotype_1. And Pattern_1.0, Pattern_1.1, Pattern_1.2 
+# for Pattern_1 (0,1,2). Also made Evnev_1.0, Evnev_1.1 for EvNev_1
+
+# Ran all the first code from the top again. Models want to build:
+
+# Normeven, Pattern_1.0 + Pattern_1.1 + Pattern_1.2
+
+Even_pattern1 <- lm(Normeven ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0, alpha_div)
+summary(Even_pattern1)
+anova(Even_pattern1)
+plot_patteven <- alpha_div %>% select(Pattern_1, Normeven) %>%
+    ggplot(aes(x=Pattern_1, y=Normeven)) + geom_point()
+# now with cow as a factor
+Even_pattern2 <- lm(Normeven ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                      Individual_animal, alpha_div)
+summary(Even_pattern2)
+anova(Even_pattern2)
+
+# now with farm as a factor 
+Even_pattern3 <- lm(Normeven ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                      Farm, alpha_div)
+summary(Even_pattern3)
+anova(Even_pattern3)
+
+# now with both as factors
+
+Even_pattern4 <- lm(Normeven ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                      Farm + Individual_animal, alpha_div)
+summary(Even_pattern4)
+anova(Even_pattern4)
+
+# Normshann, Pattern_1.0 + Pattern_1.1 + Pattern_1.2
+Shann_pattern1 <- lm(Normshann ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0, alpha_div)
+summary(Shann_pattern1)
+anova(Shann_pattern1)
+plot_pattshann <- alpha_div %>% select(Pattern_1, Normshann) %>%
+  ggplot(aes(x=Pattern_1, y=Normshann)) + geom_point()
+# now with cow as a factor
+Shann_pattern2 <- lm(Normshann ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                      Individual_animal, alpha_div)
+summary(Shann_pattern2)
+anova(Shann_pattern2)
+
+# now with farm as a factor 
+Shann_pattern3 <- lm(Normshann ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                      Farm, alpha_div)
+summary(Shann_pattern3)
+anova(Shann_pattern3)
+
+# now with both as factors
+Shann_pattern4 <- lm(Normshann ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                      Farm + Individual_animal, alpha_div)
+summary(Shann_pattern4)
+anova(Shann_pattern4)
+
+# Normrich, Pattern_1.0 + Pattern_1.1 + Pattern_1.2
+Rich_pattern1 <- lm(Normrich ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0, alpha_div)
+summary(Rich_pattern1)
+anova(Rich_pattern1)
+plot_pattrich <- alpha_div %>% select(Pattern_1, Normrich) %>%
+  ggplot(aes(x=Pattern_1, y=Normrich)) + geom_point()
+
+# now with cow as a factor
+Rich_pattern2 <- lm(Normrich ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                       Individual_animal, alpha_div)
+summary(Rich_pattern2)
+anova(Rich_pattern2)
+
+# now with farm as a factor 
+Rich_pattern3 <- lm(Normrich ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                       Farm, alpha_div)
+summary(Rich_pattern3)
+anova(Rich_pattern3)
+
+# now with both as factors
+Rich_pattern4 <- lm(Normrich ~ Pattern_1.1 + Pattern_1.2 + Pattern_1.0 + 
+                       Farm + Individual_animal, alpha_div)
+summary(Rich_pattern4)
+anova(Rich_pattern4)
+
+# Normeven, Path_1.1 + Path_1.0
+even_path1 <- lm(Normeven ~ Path_1.1 + Path_1.0, alpha_div)
+summary(even_path1)
+anova(even_path1)
+plot_patheven <- alpha_div %>% select(Pathotype_1, Normeven) %>%
+  ggplot(aes(x=Pathotype_1, y=Normeven)) + geom_point()
+plot_patheven2 <- alpha_div %>% select(Pathotype_2, Normeven) %>%
+  ggplot(aes(x=Pathotype_2, y=Normeven)) + geom_point()
+# now with cow as a factor
+even_path2 <- lm(Normeven ~ Path_1.1 + Path_1.0 + 
+                    Individual_animal, alpha_div)
+summary(even_path2)
+anova(even_path2)
+
+# now with farm as a factor 
+even_path3 <- lm(Normeven ~ Path_1.1 + Path_1.0 + 
+                    Farm, alpha_div)
+summary(even_path3)
+anova(even_path3)
+
+# now with both as factors
+even_path4 <- lm(Normeven ~ Path_1.1 + Path_1.0 + 
+                    Farm + Individual_animal, alpha_div)
+summary(even_path4)
+anova(even_path4)
+
+# Normshann, Path_1.1 + Path_1.0
+shann_path1 <- lm(Normshann ~ Path_1.1 + Path_1.0, alpha_div)
+summary(shann_path1)
+anova(shann_path1)
+plot_pathshann <- alpha_div %>% select(Pathotype_1, Normshann) %>%
+  ggplot(aes(x=Pathotype_1, y=Normshann)) + geom_point()
+plot_pathshann2 <- alpha_div %>% select(Pathotype_2, Normshann) %>%
+  ggplot(aes(x=Pathotype_2, y=Normshann)) + geom_point()
+# now with cow as a factor
+shann_path2 <- lm(Normshann ~ Path_1.1 + Path_1.0 + 
+                   Individual_animal, alpha_div)
+summary(shann_path2)
+anova(shann_path2)
+
+# now with farm as a factor 
+shann_path3 <- lm(Normshann ~ Path_1.1 + Path_1.0 + 
+                   Farm, alpha_div)
+summary(shann_path3)
+anova(shann_path3)
+
+# now with both as factors
+shann_path4 <- lm(Normshann ~ Path_1.1 + Path_1.0 + 
+                   Farm + Individual_animal, alpha_div)
+summary(shann_path4)
+anova(shann_path4)
+
+# Normrich, Path_1.1 + Path_1.0
+rich_path1 <- lm(Normrich ~ Path_1.1 + Path_1.0, alpha_div)
+summary(rich_path1)
+anova(rich_path1)
+plot_pathrich <- alpha_div %>% select(Pathotype_1, Normrich) %>%
+  ggplot(aes(x=Pathotype_1, y=Normrich)) + geom_point()
+plot_pathrich2 <- alpha_div %>% select(Pathotype_2, Normrich) %>%
+  ggplot(aes(x=Pathotype_2, y=Normrich)) + geom_point()
+# now with cow as a factor
+rich_path2 <- lm(Normrich ~ Path_1.1 + Path_1.0 + 
+                    Individual_animal, alpha_div)
+summary(rich_path2)
+anova(rich_path2)
+
+# now with farm as a factor 
+rich_path3 <- lm(Normrich ~ Path_1.1 + Path_1.0 + 
+                    Farm, alpha_div)
+summary(rich_path3)
+anova(rich_path3)
+
+# now with both as factors
+rich_path4 <- lm(Normrich ~ Path_1.1 + Path_1.0 + 
+                    Farm + Individual_animal, alpha_div)
+summary(rich_path4)
+anova(rich_path4)
+
+
+# Normeven, Evnev_1.0 + Evnev_1.1
+even_evnev1 <- lm(Normeven ~ Evnev_1.1 + Evnev_1.0, alpha_div)
+summary(even_evnev1)
+anova(even_evnev1)
+plot_evneveven <- alpha_div %>% select(EvNev_1, Normeven) %>%
+  ggplot(aes(x=EvNev_1, y=Normeven)) + geom_point()
+
+# now with cow as a factor
+even_evnev2 <- lm(Normeven ~ Evnev_1.1 + Evnev_1.0 + 
+                     Individual_animal, alpha_div)
+summary(even_evnev2)
+anova(even_evnev2)
+
+# now with farm as a factor 
+even_evnev3 <- lm(Normeven ~ Evnev_1.1 + Evnev_1.0 + 
+                     Farm, alpha_div)
+summary(even_evnev3)
+anova(even_evnev3)
+
+# now with both as factors
+even_evnev4 <- lm(Normeven ~ Evnev_1.1 + Evnev_1.0 + 
+                     Farm + Individual_animal, alpha_div)
+summary(even_evnev4)
+anova(even_evnev4)
+
+
+# Normshann, Evnev_1.0 + Evnev_1.1
+Shann_evnev1 <- lm(Normshann ~ Evnev_1.1 + Evnev_1.0, alpha_div)
+summary(Shann_evnev1)
+anova(Shann_evnev1)
+plot_evnevshann <- alpha_div %>% select(EvNev_1, Normshann) %>%
+  ggplot(aes(x=EvNev_1, y=Normshann)) + geom_point()
+
+# now with cow as a factor
+Shann_evnev2 <- lm(Normshann ~ Evnev_1.1 + Evnev_1.0 + 
+                    Individual_animal, alpha_div)
+summary(Shann_evnev2)
+anova(Shann_evnev2)
+
+# now with farm as a factor 
+Shann_evnev3 <- lm(Normshann ~ Evnev_1.1 + Evnev_1.0 + 
+                    Farm, alpha_div)
+summary(Shann_evnev3)
+anova(Shann_evnev3)
+
+# now with both as factors
+Shann_evnev4 <- lm(Normshann ~ Evnev_1.1 + Evnev_1.0 + 
+                    Farm + Individual_animal, alpha_div)
+summary(Shann_evnev4)
+anova(Shann_evnev4)
+
+# Normrich, Evnev_1.0 + Evnev_1.1
+Rich_evnev1 <- lm(Normrich ~ Evnev_1.1 + Evnev_1.0, alpha_div)
+summary(Rich_evnev1)
+anova(Rich_evnev1)
+plot_evnevrich <- alpha_div %>% select(EvNev_1, Normrich) %>%
+  ggplot(aes(x=EvNev_1, y=Normrich)) + geom_point()
+
+# now with cow as a factor
+Rich_evnev2 <- lm(Normrich ~ Evnev_1.1 + Evnev_1.0 + 
+                      Individual_animal, alpha_div)
+summary(Rich_evnev2)
+anova(Rich_evnev2)
+
+# now with farm as a factor 
+Rich_evnev3 <- lm(Normrich ~ Evnev_1.1 + Evnev_1.0 + 
+                      Farm, alpha_div)
+summary(Rich_evnev3)
+anova(Rich_evnev3)
+
+# now with both as factors
+Rich_evnev4 <- lm(Normrich ~ Evnev_1.1 + Evnev_1.0 + 
+                      Farm + Individual_animal, alpha_div)
+summary(Rich_evnev4)
+anova(Rich_evnev4)
