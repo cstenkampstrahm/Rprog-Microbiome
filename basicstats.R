@@ -29,18 +29,35 @@ OTUS <- vegan_otu(Cowdatarich)
 # is taxa table, trt.df is metadata file. For me, OTUS is OTU cts, taxa is tax table
 # and sampledata is metadata file.
 taxanew <- data.frame(taxa)
-taxanew <- mutate(taxanew, OTUs = rownames(taxa))
+
 ### Remove otus that have nothing in them
 d.cs = apply(OTUS,2,sum)
 OTUS = OTUS[,d.cs>0]
 otu.nm = colnames(OTUS)
 # made the OTU values a new column. Now try to select only the ones left in my 
 # OTU table after pruning:
-taxa.df = taxanew[taxanew$OTU%in%otu.nm,]
+taxa.df = taxanew[row.names(taxanew)%in%otu.nm,]
 
 ### Before continuing on with this analysis, need to generate the taxa.df similar
 ### to the version that zaid has, where there is numbered rows, a column of OTUs,
 ### their size in the next column, and then the taxa full name in the next column
+
+# going to try to convert to an annotated data frame and back again to use agg tax
+names <- sampledata[,1]
+OTUSpruned <- OTUS[names$SampleID,] # this didn't get rid of any taxa but checks 
+# to see that they are the same samp names between OTU table and sampledata
+OTUSpruned = t(OTUSpruned) # what does this do?\
+# looks like I need to get the sample names in the column position?
+sampledata = t(sampledata)
+sampledata = data.frame(sampledata)
+trt.an = AnnotatedDataFrame(sampledata)
+taxa.an = AnnotatedDataFrame(taxa.df)
+d.ms = newMRexperiment(OTUSpruned,phenoData = trt.an,featureData = taxa.an) #NOT WORKING
+pData(d.ms) #phenotype data that describes the metadata
+fData(d.ms) #this is the otudata 
+head(MRcounts(d.ms))#the count data
+
+
 
 taxa1.df <- unite(taxa.df, col = bacteria, Rank1:Rank7, sep = " ;")
 #changed the 1s to 2s for column spec, changed the 3 to 1 for column spec, also
