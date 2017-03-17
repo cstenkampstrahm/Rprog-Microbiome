@@ -44,11 +44,28 @@ library(cluster)
 library(NbClust)
 source(file="files from zaid/functions_Chloe.R")
 
-taxa1.df = taxa.cleanup.qiime.ftn(taxa.df=taxa.df)
+taxa1.df = taxa.cleanup.qiime.ftn(taxa.df=taxa.df) # added a note in here so can
+# save this generated taxa table with taxa parsed out by level
 #save(taxa1.df, file="splitcowtaxa")
+#giving the OTUS in the split taxa names based on those in the OTU table
 nm.vt = colnames(OTUS)
 nm.vt = paste("OTU",nm.vt,sep="")
 colnames(OTUS)=nm.vt
+# now combo the OTU table and the taxa table based on the level desired
+## PHYLUM
 combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=2)
-combined.df = combined.ls[[1]]
-#will get a taxa table with aggregates by sample up to the Phylum level
+phylum.df = combined.ls[[1]]
+#will get a taxa table with aggregates by sample up to the Phylum level. doing this
+#for all different levels now to generate data files to work with
+## CLASS
+combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=3)
+class.df = combined.ls[[1]]
+## ORDER
+combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=4)
+order.df = combined.ls[[1]]
+## FAMILY
+combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=5)
+family.df = combined.ls[[1]]
+## GENUS
+combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=6)
+genus.df = combined.ls[[1]]
