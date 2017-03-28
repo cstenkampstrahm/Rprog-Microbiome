@@ -69,3 +69,11 @@ family.df = combined.ls[[1]]
 ## GENUS
 combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=6)
 genus.df = combined.ls[[1]]
+
+
+# want to look at spread of data for Table 1:
+library("xlsx")
+table_1 <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormed.xlsx", 1)
+pattern <- table_1 %>% group_by(Pattern_1, Farm) %>% summarise(pattnval = n())
+pathotype <- table_1 %>% group_by(Pathotype_1, Farm) %>% summarise(pathnval = n())
+evernever <- table_1 %>% group_by(EvNev_1, Farm) %>% summarise(evnevnval = n())
