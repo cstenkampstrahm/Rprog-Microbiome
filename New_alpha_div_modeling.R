@@ -180,4 +180,31 @@ z
 p <- (1-pnorm(abs(z),0,1)) * 2
 p
 
-  
+
+## to get more meaningful values, can calculate the IQR of diversity values 
+# (between 1st and 3rd quartile) and multiply the B coefficients by that:
+
+IQR_scaledrich <- IQR(alpha_div_scaled$Scaledrich)
+IQR_scaledrich
+# 1.036271
+IQR_normrich <- IQR(alpha_div_scaled$Normrich)
+IQR_normrich  
+# 1255
+IQR_avgrich <- IQR(avg_alpha_div_scaled$Avgrich)
+IQR_avgrich 
+# 797.65
+IQR_avgrichscaled <- IQR(avg_alpha_div_scaled$Avgscaledrich)
+IQR_avgrichscaled 
+# 0.6586304
+IQR_normshann <- IQR(alpha_div_scaled$Normshann)
+IQR_normshann
+# 0.4804946
+IQR_avgshann <- IQR(avg_alpha_div_scaled$Avgshann)
+IQR_avgshann
+# 0.3716254
+IQR_normeven  <- IQR(alpha_div_scaled$Normeven)
+IQR_normeven
+# 0.0366165
+IQR_avgeven <- IQR(avg_alpha_div_scaled$Avgeven)
+IQR_avgeven
+# 0.03348146
