@@ -89,7 +89,6 @@ alpha_div_scaled <- mutate(alpha_div_scaled, "Normrich" = as.numeric(Normrich),
                     "Normshann" = as.numeric(Normshann),
                     "Normeven" = as.numeric(Normeven),
                     "Scaledrich" = as.numeric(Scaledrich))
-
 avg_alpha_div_scaled <- mutate(avg_alpha_div_scaled, "Avgrich" = as.numeric(Avgrich), 
                         "Avgshann" = as.numeric(Avgshann),
                         "Avgeven" = as.numeric(Avgeven),
@@ -445,3 +444,8 @@ z <- summary(m3.3DIM)$coefficients/summary(m3.3DIM)$standard.errors
 z
 p <- (1-pnorm(abs(z), 0, 1)) * 2
 p
+
+## Want to look at associations between each metadata variable of interest (outside
+## of O157 metrics) and alpha diversity measures. 
+
+

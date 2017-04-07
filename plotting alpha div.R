@@ -1,62 +1,62 @@
 ### variance = avg of squared differences from mean, std deviation is square
 ### root of the variance
 library("xlsx")
-alpha_div <- read.xlsx("Cow_map_wrichnshansnevennormed.xlsx", 1)
+alpha_div <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormednscaled.xlsx", 1)
 library(ggplot2)
 library(tidyverse)
 
 #Richness
 path_richness <- alpha_div %>% group_by(Pathotype_1) %>%
-  summarise(pathrichavg = mean(Obs_richness), pathrichsd = sd(Obs_richness), 
-            pathrichmin = min(Obs_richness),pathrichmax = max(Obs_richness), 
+  summarise(pathrichavg = mean(Normrich), pathrichsd = sd(Normrich),
+            pathrichmin = min(Normrich),pathrichmax = max(Normrich), 
             pathnval = n()) %>% 
   ungroup()
 
 evnev_richness <- alpha_div %>% group_by(EvNev_1) %>%
-  summarise(evnevrichavg = mean(Obs_richness), evnevrichsd = sd(Obs_richness), 
-            evnevrichmin = min(Obs_richness),evnevrichmax = max(Obs_richness), 
+  summarise(evnevrichavg = mean(Normrich), evnevrichsd = sd(Normrich), 
+            evnevrichmin = min(Normrich),evnevrichmax = max(Normrich), 
             evnevnval = n()) %>% 
   ungroup()
   
 patt_richness <- alpha_div %>% group_by(Pattern_1) %>%
-  summarise(pattrichavg = mean(Obs_richness), pattrichsd = sd(Obs_richness), 
-            pattrichmin = min(Obs_richness),pattrichmax = max(Obs_richness), 
+  summarise(pattrichavg = mean(Normrich), pattrichsd = sd(Normrich), 
+            pattrichmin = min(Normrich),pattrichmax = max(Normrich), 
             pattnval = n())
 
 #Shannons
 path_shann <- alpha_div %>% group_by(Pathotype_1) %>%
-  summarise(pathshanavg = mean(Shannon), pathshannsd = sd(Shannon), 
-            pathshannmin = min(Shannon),pathshannmax = max(Shannon), 
+  summarise(pathshanavg = mean(Normshann), pathshannsd = sd(Normshann), 
+            pathshannmin = min(Normshann),pathshannmax = max(Normshann), 
             pathnval = n()) %>% 
   ungroup()
 
 evnev_shann <- alpha_div %>% group_by(EvNev_1) %>%
-  summarise(evnevshannavg = mean(Shannon), evnevshannsd = sd(Shannon), 
-            evnevshannmin = min(Shannon),evnevshannmax = max(Shannon), 
+  summarise(evnevshannavg = mean(Normshann), evnevshannsd = sd(Normshann), 
+            evnevshannmin = min(Normshann),evnevshannmax = max(Normshann), 
             evnevnval = n()) %>% 
   ungroup()
 
 patt_shann <- alpha_div %>% group_by(Pattern_1) %>%
-  summarise(pattshannavg = mean(Shannon), pattshannsd = sd(Shannon), 
-            pattshannmin = min(Shannon),pattshannmax = max(Shannon), 
+  summarise(pattshannavg = mean(Normshann), pattshannsd = sd(Normshann), 
+            pattshannmin = min(Normshann),pattshannmax = max(Normshann), 
             pattnval = n())
 
 # Evenness
 path_even <- alpha_div %>% group_by(Pathotype_1) %>%
-  summarise(pathevenavg = mean(Evenness), pathevensd = sd(Evenness), 
-            pathevennmin = min(Evenness),pathevenmax = max(Evenness), 
+  summarise(pathevenavg = mean(Normeven), pathevensd = sd(Normeven), 
+            pathevennmin = min(Normeven),pathevenmax = max(Normeven), 
             pathnval = n()) %>% 
   ungroup()
 
 evnev_even <- alpha_div %>% group_by(EvNev_1) %>%
-  summarise(evnevevenavg = mean(Evenness), evnevevensd = sd(Evenness), 
-            evnevevenmin = min(Evenness),evnevevenmax = max(Evenness), 
+  summarise(evnevevenavg = mean(Normeven), evnevevensd = sd(Normeven), 
+            evnevevenmin = min(Normeven),evnevevenmax = max(Normeven), 
             evnevnval = n()) %>% 
   ungroup()
 
 patt_even <- alpha_div %>% group_by(Pattern_1) %>%
-  summarise(pattevenavg = mean(Evenness), pattevensd = sd(Evenness), 
-            pattevenmin = min(Evenness),pattevenmax = max(Evenness), 
+  summarise(pattevenavg = mean(Normeven), pattevensd = sd(Normeven), 
+            pattevenmin = min(Normeven),pattevenmax = max(Normeven), 
             pattnval = n())
 ###placed value output in the excel sheet that had the other test output for
 #also added a column with n values and calculated the std error (sd/sqrt(n))

@@ -162,4 +162,5 @@ citation("vegan")
 #plot_bar(path15, "Pathotype_1", fill = "Parity")
 
 #plot_heatmap(Normcowdatanew, "NMDS", "bray", "SampleID", "Family")
-  
+
+

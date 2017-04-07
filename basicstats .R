@@ -74,6 +74,50 @@ genus.df = combined.ls[[1]]
 # want to look at spread of data for Table 1:
 library("xlsx")
 table_1 <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormed.xlsx", 1)
-pattern <- table_1 %>% group_by(Pattern_1, Farm) %>% summarise(pattnval = n())
-pathotype <- table_1 %>% group_by(Pathotype_1, Farm) %>% summarise(pathnval = n())
-evernever <- table_1 %>% group_by(EvNev_1, Farm) %>% summarise(evnevnval = n())
+pathotype_farm <- table_1 %>% group_by(Pathotype_1, Farm) %>% summarise(pathnval = n())
+evernever_farm <- table_1 %>% group_by(EvNev_1, Farm) %>% summarise(evnevnval = n())
+pattern_farm <- table_1 %>% group_by(Pattern_1, Farm) %>% summarise(pattnval = n())
+
+pattern_DIM1 <- table_1 %>% group_by(Pattern_1, DIM) %>% summarise(pattnval = n())
+# DIM day 1
+table_2 <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormednscaled.xlsx", 2)
+pattern_DIM <- table_2 %>% group_by(Pattern_1, DIM) %>% summarise(pattnval = n())
+pathotype_DIM <- table_2 %>% group_by(Pathotype_1, DIM) %>% summarise(pathnval = n())
+evernever_DIM <- table_2 %>% group_by(EvNev_1, DIM) %>% summarise(evnevnval = n())
+
+pathotype_parity <- table_1 %>% group_by(Pathotype_1, Parity) %>% summarise(paritynval = n())
+pattern_parity <- table_1 %>% group_by(Pattern_1, Parity) %>% summarise(paritynval = n())
+evnev_parity <- table_1 %>% group_by(EvNev_1, Parity) %>% summarise(paritynval = n())
+
+pathotype_dx <- table_1 %>% group_by(Pathotype_1, Disease) %>% summarise(dxnval = n())
+pattern_dx <- table_1 %>% group_by(Pattern_1, Disease) %>% summarise(dxnval = n())
+evnev_dx <- table_1 %>% group_by(EvNev_1, Disease) %>% summarise(dxnval = n())
+
+# want to look at the counts for OTUs by sample. Can't figure out how to 
+# group by metadata variables in phyloseq. Will output the sums and add to 
+# metadata file (cow_map_wrichnshansnevennormednscaled.xlsx)
+OTUcts <- sample_sums(Normcowdatanew)
+OTUcts
+write.xlsx(OTUcts, "OTUctsnormed.xlsx")
+OTUcts <- sample_sums(Cowdatarich)
+write.xlsx(OTUcts, "OTUcts.xlsx")
+
+# non normalized counts
+alpha_div <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormednscaled.xlsx", 1)
+path_OTU <- alpha_div %>% group_by(Pathotype_1) %>%
+  summarise(pathOTUavg = mean(OTUcts), pathOTUsd = sd(OTUcts),
+            pathOTUmin = min(OTUcts),pathOTUmax = max(OTUcts), 
+            pathnval = n()) %>% 
+  ungroup()
+
+evnev_OTU <- alpha_div %>% group_by(EvNev_1) %>%
+  summarise(evnevOTUavg = mean(OTUcts), evnevOTUsd = sd(OTUcts), 
+            evnevOTUmin = min(OTUcts),evnevOTUmax = max(OTUcts), 
+            evnevnval = n()) %>% 
+  ungroup()
+
+patt_OTUs <- alpha_div %>% group_by(Pattern_1) %>%
+  summarise(pattOTUavg = mean(OTUcts), pattOTUsd = sd(OTUcts), 
+            pattOTUmin = min(OTUcts),pattOTUmax = max(OTUcts), 
+            pattnval = n())
+
