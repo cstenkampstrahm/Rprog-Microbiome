@@ -79,6 +79,9 @@ Normrich1 <- scale(alpha_div$Normrich, center = TRUE, scale = TRUE)
 Normrich1 <- apply(Normrich1,1,as.numeric)
 Normrich1 <- as.data.frame(Normrich1)
 write.xlsx(Normrich1, "scaledrich.xlsx")
+Normrich2 <- scale(avg_alpha_div$Avgrich, center = TRUE, scale = TRUE)
+Normrich2 <- apply(Normrich2,1,as.numeric)
+write.xlsx(Normrich2, "scaledavgrich.xlsx")
 # added the column of scaled values to the xlsx because could not turn matrix back
 # into numeric class and get it merged! Variable is now called Scaledrich in new data frame
 # for both avg and non-avg sheets:
@@ -92,7 +95,8 @@ alpha_div_scaled <- mutate(alpha_div_scaled, "Normrich" = as.numeric(Normrich),
 avg_alpha_div_scaled <- mutate(avg_alpha_div_scaled, "Avgrich" = as.numeric(Avgrich), 
                         "Avgshann" = as.numeric(Avgshann),
                         "Avgeven" = as.numeric(Avgeven),
-                        "Avgscaledrich" = as.numeric(Avgscaledrich))
+                        "Avgscaledrich" = as.numeric(Avgscaledrich),
+                        "Newscaleavgrich" = as.numeric(Newscaleavgrich))
 
 alpha_div_scaled <- alpha_div_scaled %>% mutate(Path_1.0 = as.factor(Path_1.0),
                                   Path_1.1 = as.factor(Path_1.1),
@@ -124,6 +128,10 @@ m1.1.0 <- glmer(Pathotype_1 ~ Scaledrich + (1|Individual_animal), data = alpha_d
               family = binomial, control = glmerControl(optimizer = "bobyqa"))
 summary(m1.1.0)
 
+m1.1.00 <- glmer(Pathotype_1 ~ log(Normrich) + (1|Individual_animal), data = alpha_div_scaled,
+                family = binomial, control = glmerControl(optimizer = "bobyqa"))
+summary(m1.1.00)
+
 # not getting any errors now
 
 
@@ -145,7 +153,7 @@ summary(m1.3)
 m2.1 <- glm(EvNev_1 ~ Avgrich, data = avg_alpha_div_scaled, family = binomial)
 summary(m2.1)
 #trying scaled average richness
-m2.1.1 <- glm(EvNev_1 ~ Avgscaledrich, data = avg_alpha_div_scaled, family = binomial)
+m2.1.1 <- glm(EvNev_1 ~ Newscaleavgrich, data = avg_alpha_div_scaled, family = binomial)
 summary(m2.1.1)
 
 m2.2 <- glm(EvNev_1 ~ Avgshann, data = avg_alpha_div_scaled, family = binomial)
@@ -171,19 +179,33 @@ p
 
 shapiro.test(avg_alpha_div_scaled$Avgrich)
 shapiro.test(avg_alpha_div_scaled$Avgscaledrich)
+shapiro.test(avg_alpha_div_scaled$Newscaleavgrich)
 qqnorm(avg_alpha_div_scaled$Avgrich, ylab= "Average Richness")
 qqnorm(avg_alpha_div_scaled$Avgscaledrich, ylab= "Average Richness Scaled")
 
 # both have sig p vals, not normally distributed. quantile plots look 
 # pretty normal though. 
 
-m3.1.0 <- multinom(Pattern_1 ~ Avgscaledrich, data = avg_alpha_div_scaled)
+m3.1.0 <- multinom(Pattern_1 ~ Newscaleavgrich, data = avg_alpha_div_scaled)
 summary(m3.1.0)
 z <- summary(m3.1.0)$coefficients/summary(m3.1.0)$standard.errors
 z
 p <- (1-pnorm(abs(z), 0, 1)) * 2
 p
 
+m3.1.000 <- multinom(Parity_1 ~ log(Avgrich), data = avg_alpha_div_scaled)
+summary(m3.1.000)
+z <- summary(m3.1.000)$coefficients/summary(m3.1.000)$standard.errors
+z
+p <- (1-pnorm(abs(z), 0, 1)) * 2  
+p 
+
+#another way to get p values, doing Liklihood ratio tests on output
+library(afex)
+set_sum_contrasts() # use sum coding, necessary to make type III LR tests valid
+library(car)
+Anova(m3.1.0,type="III")
+Anova(m3.1.0,type="II")
 
 m3.2 <- multinom(Pattern_1 ~ Avgshann, data = avg_alpha_div_scaled)
 summary(m3.2)
@@ -215,6 +237,9 @@ IQR_avgrich
 IQR_avgrichscaled <- IQR(avg_alpha_div_scaled$Avgscaledrich)
 IQR_avgrichscaled 
 # 0.6586304
+IQR_Newscaledavgrich <- IQR(avg_alpha_div_scaled$Newscaleavgrich)
+IQR_Newscaledavgrich
+# 0.9600969
 IQR_normshann <- IQR(alpha_div_scaled$Normshann)
 IQR_normshann
 # 0.4804946
@@ -241,6 +266,17 @@ avgrichspread
 #1         0        4186.431         3359.8         5180.0
 #2         1        4252.625         2877.4         7644.4
 #3         2        3842.000         2440.0         5000.4
+
+scalerichspread <- avg_alpha_div_scaled %>% group_by(Pattern_1) %>% summarize(mean(Newscaleavgrich),
+                                                                              min(Newscaleavgrich),
+                                                                              max(Newscaleavgrich))
+scalerichspread
+# A tibble: 3 × 4
+#Pattern_1 `mean(Newscaleavgrich)` `min(Newscaleavgrich)` `max(Newscaleavgrich)`
+#<fctr>                   <dbl>                  <dbl>                  <dbl>
+#1         0              0.01755534              -0.977425              1.2134712
+#2         1              0.09722990              -1.558069              4.1797631
+#3         2             -0.39702170              -2.084549              0.9972944
 
 # others
 avgshannspread <- avg_alpha_div_scaled %>% group_by(Pattern_1) %>% summarize(mean(Avgshann), 
@@ -446,6 +482,7 @@ p <- (1-pnorm(abs(z), 0, 1)) * 2
 p
 
 ## Want to look at associations between each metadata variable of interest (outside
-## of O157 metrics) and alpha diversity measures. 
+## of O157 metrics) and alpha diversity measures.See confounders sheet. Also see 
+## updated basic stats for associations between O157 metrics and metadata
 
 

@@ -92,3 +92,92 @@ pathotypesummary <- alpha_div %>% group_by(Farm, Day) %>%
 
 ### double check the values
 dgaf <- alpha_div %>% select(Farm, Day, Pathotype_1) %>% group_by(Farm, Day)  
+
+##### New code for box and whisker plot on 4.11.17
+table_1 <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormednscaled.xlsx", 1)
+table_2 <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormednscaled.xlsx", 2)
+#Evnev used averaged values
+#Pattern used averaged values
+#Pathotype used values not averaged
+path_richness <- table_1 %>% group_by(Pathotype_1) %>% 
+  summarise(ymin = min(Normrich), ymax = max(Normrich),
+            median = median(Normrich), 
+            lower = quantile(Normrich, probs=0.25),
+            upper = quantile(Normrich, probs=0.75),
+            pathnval = n()) %>%
+  ungroup()
+
+path_shannons <- table_1 %>% group_by(Pathotype_1) %>% 
+  summarise(ymin = min(Normshann), ymax = max(Normshann),
+            median = median(Normshann), 
+            lower = quantile(Normshann, probs=0.25),
+            upper = quantile(Normshann, probs=0.75),
+            pathnval = n()) %>%
+  ungroup()
+
+path_even <- table_1 %>% group_by(Pathotype_1) %>% 
+  summarise(ymin = min(Normeven), ymax = max(Normeven),
+            median = median(Normeven), 
+            lower = quantile(Normeven, probs=0.25),
+            upper = quantile(Normeven, probs=0.75),
+            pathnval = n()) %>%
+  ungroup()
+
+patt_richness <- table_2 %>% group_by(Pattern_1) %>% 
+  summarise(ymin = min(Avgrich), ymax = max(Avgrich),
+            median = median(Avgrich), 
+            lower = quantile(Avgrich, probs=0.25),
+            upper = quantile(Avgrich, probs=0.75),
+            pattnval = n()) %>%
+  ungroup()
+
+patt_shann <- table_2 %>% group_by(Pattern_1) %>% 
+  summarise(ymin = min(Avgshann), ymax = max(Avgshann),
+            median = median(Avgshann), 
+            lower = quantile(Avgshann, probs=0.25),
+            upper = quantile(Avgshann, probs=0.75),
+            pattnval = n()) %>%
+  ungroup()
+
+patt_even <- table_2 %>% group_by(Pattern_1) %>% 
+  summarise(ymin = min(Avgeven), ymax = max(Avgeven),
+            median = median(Avgeven), 
+            lower = quantile(Avgeven, probs=0.25),
+            upper = quantile(Avgeven, probs=0.75),
+            pattnval = n()) %>%
+  ungroup()
+
+evnev_richness <- table_2 %>% group_by(EvNev_1) %>% 
+  summarise(ymin = min(Avgrich), ymax = max(Avgrich),
+            median = median(Avgrich), 
+            lower = quantile(Avgrich, probs=0.25),
+            upper = quantile(Avgrich, probs=0.75),
+            pattnval = n()) %>%
+  ungroup()
+
+evnev_shann <- table_2 %>% group_by(EvNev_1) %>% 
+  summarise(ymin = min(Avgshann), ymax = max(Avgshann),
+            median = median(Avgshann), 
+            lower = quantile(Avgshann, probs=0.25),
+            upper = quantile(Avgshann, probs=0.75),
+            pattnval = n()) %>%
+  ungroup()
+
+evnev_even <- table_2 %>% group_by(EvNev_1) %>% 
+  summarise(ymin = min(Avgeven), ymax = max(Avgeven),
+            median = median(Avgeven), 
+            lower = quantile(Avgeven, probs=0.25),
+            upper = quantile(Avgeven, probs=0.75),
+            mid = quantile(Avgeven, probs=0.5),
+            pattnval = n()) %>%
+  ungroup()
+# placed values into excel sheet
+
+table_3 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 7)
+
+ggplot(aes(y = median, x = Level), data = table_3) +
+  facet_grid(Alphadiv ~ O157metric, scales = "free") +
+  #geom_boxplot()
+  geom_boxplot(aes(ymin = ymin, ymax = ymax, middle = median, 
+                   lower = lower, upper = upper), stat = "identity")
+  

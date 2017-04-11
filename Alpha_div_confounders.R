@@ -1,4 +1,4 @@
-# Alpha div looking at potential confounding variables:
+##### Alpha div looking at potential confounding variables: ####
 
 alpha_div_scaled <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormednscaled.xlsx", 1)
 avg_alpha_div_scaled <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormednscaled.xlsx", 2)
@@ -16,6 +16,7 @@ avg_alpha_div_scaled <- mutate(avg_alpha_div_scaled, "Avgrich" = as.numeric(Avgr
                                "Avgshann" = as.numeric(Avgshann),
                                "Avgeven" = as.numeric(Avgeven),
                                "Avgscaledrich" = as.numeric(Avgscaledrich),
+                               "Newscaleavgrich" = as.numeric(Newscaleavgrich),
                                "DIM" = as.numeric(DIM),
                                "DIM_1" = as.factor(DIM_1),
                                "Parity" = as.factor(Parity),
@@ -66,6 +67,7 @@ summary(avg_alpha_div_scaled$Parity)
 # 19  7  8  3  1  2 
 
 # Parity_1
+
 confmod10 <- multinom(Parity_1 ~ Avgrich, data = avg_alpha_div_scaled)
 summary(confmod10)
 z <- summary(confmod10)$coefficients/summary(confmod10)$standard.errors
@@ -74,12 +76,13 @@ p <- (1-pnorm(abs(z), 0, 1)) * 2
 p 
 
 
-confmod11 <- multinom(Parity_1 ~ Avgscaledrich, data = avg_alpha_div_scaled)
+confmod11 <- multinom(Parity_1 ~ Newscaleavgrich, data = avg_alpha_div_scaled)
 summary(confmod11)
 z <- summary(confmod11)$coefficients/summary(confmod11)$standard.errors
 z
 p <- (1-pnorm(abs(z), 0, 1)) * 2  
 p 
+
 
 confmod12 <- multinom(Parity_1 ~ Avgshann, data = avg_alpha_div_scaled)
 summary(confmod12)
@@ -97,18 +100,18 @@ p
 
 # Parity_2
 
-confmod14 <- glm(Parity_1 ~ Avgscaledrich, data = avg_alpha_div_scaled, family = binomial)
+confmod14 <- glm(Parity_2 ~ Avgscaledrich, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod14)
-confmod15 <- glm(Parity_1 ~ Avgrich, data = avg_alpha_div_scaled, family = binomial)
+confmod15 <- glm(Parity_2 ~ Avgrich, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod15)
-confmod16 <- glm(Parity_1 ~ Avgshann, data = avg_alpha_div_scaled, family = binomial)
+confmod16 <- glm(Parity_2 ~ Avgshann, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod16)
-confmod17 <- glm(Parity_1 ~ Avgeven, data = avg_alpha_div_scaled, family = binomial)
+confmod17 <- glm(Parity_2 ~ Avgeven, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod17)
 
 # Disease
 
-confmod18 <- glm(Disease ~ Avgscaledrich, data = avg_alpha_div_scaled, family = binomial)
+confmod18 <- glm(Disease ~ Newscaleavgrich, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod18)
 confmod19 <- glm(Disease ~ Avgrich, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod19)
@@ -119,7 +122,7 @@ summary(confmod21)
 
 # Farm
 
-confmod22 <- glm(Farm ~ Avgscaledrich, data = avg_alpha_div_scaled, family = binomial)
+confmod22 <- glm(Farm ~ Newscaleavgrich, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod22)
 confmod23 <- glm(Farm ~ Avgrich, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod23)
@@ -127,3 +130,6 @@ confmod24 <- glm(Farm ~ Avgshann, data = avg_alpha_div_scaled, family = binomial
 summary(confmod24)
 confmod25 <- glm(Farm ~ Avgeven, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod25)
+
+
+
