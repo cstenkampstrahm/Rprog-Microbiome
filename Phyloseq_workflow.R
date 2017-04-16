@@ -76,6 +76,11 @@ new_tax_table <- tax_table(Cowonly)
 Normcowdata <- merge_phyloseq(norm_otu_table, bmsd, new_tax_table)
 Normcowdata
 
+save(Normcowdata, file="Phyloseq files/Normcowdata")  ## this is the file used in 
+## later code to aggregate taxa, make heat maps, ordination plots, etc ##
+
+
+
 # Measuring Shannon's in the normalized samples:
 
 shannon_values <- estimate_richness(Normcowdata, measures="Shannon")

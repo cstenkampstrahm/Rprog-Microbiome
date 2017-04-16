@@ -10,7 +10,8 @@
 #save(Cowdatarich, file="Cowdata")
 #save(Normcowonly, file="Normcowdatanew")
 #source(file="Phyloseq_workflow.R")
-load("Phyloseq files/Cowdata")
+load("Phyloseq files/Cowdata") # load this for non normed data
+load("Phyloseq files/Normcowonly") # load this for normed data
 Cowdatarich
 OTUS <- otu_table(Cowdatarich)
 sampledata <- sample_data(Cowdatarich)
@@ -69,6 +70,8 @@ family.df = combined.ls[[1]]
 ## GENUS
 combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=6)
 genus.df = combined.ls[[1]]
+
+
 
 ##### OLD CODE #######
 # want to look at spread of data for Table 1:

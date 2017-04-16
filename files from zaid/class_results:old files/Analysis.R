@@ -116,7 +116,7 @@ pheatmap.1.ftn(d.df,cutoff=3,cellh=50,cellw=10,fonts=7)
 ###### Looking at an experiment
 d.taxa.ls = taxa.split.combine.ftn(taxa=taxa.df,d.df=norm.mt,l=5)
 d.df = d.taxa.ls[[1]]
-trt.df = read.table(file="metadata/samples.file",header=FALSE)
+trt.df = read.table(file="files from zaid/samples.file",header=FALSE)
 trt.df = data.frame(trt.df[,c(1,2)],row.names=trt.df[,3])
 names(trt.df) = c("Trt","rep")
 

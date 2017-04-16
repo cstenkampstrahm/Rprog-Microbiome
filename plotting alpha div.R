@@ -175,9 +175,11 @@ evnev_even <- table_2 %>% group_by(EvNev_1) %>%
 
 table_3 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 7)
 
-ggplot(aes(y = median, x = Level), data = table_3) +
+ggplot(aes(y = median, x = Level, color= Alphadiv), data = table_3) +
   facet_grid(Alphadiv ~ O157metric, scales = "free") +
-  #geom_boxplot()
   geom_boxplot(aes(ymin = ymin, ymax = ymax, middle = median, 
-                   lower = lower, upper = upper), stat = "identity")
+                   lower = lower, upper = upper), stat = "identity") +
+  theme_classic() +
+  labs(y = "IQR of Alpha Diversity", x = "O157 Metric") +
+  theme(legend.position = "none")
   
