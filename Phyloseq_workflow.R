@@ -78,8 +78,11 @@ Normcowdata
 
 save(Normcowdata, file="Phyloseq files/Normcowdata")  ## this is the file used in 
 ## later code to aggregate taxa, make heat maps, ordination plots, etc ##
-
-
+library(ape)
+treefile <- read.tree("rep_set.tre")
+Normcowdatatree <- merge_phyloseq(norm_otu_table, bmsd, new_tax_table, treefile)
+save(Normcowdatatree, file="Phyloseq files/Normcowdatatree")
+## this is the code to use when calculating Unifrac and plotting via PCoA
 
 # Measuring Shannon's in the normalized samples:
 
