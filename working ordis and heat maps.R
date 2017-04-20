@@ -157,20 +157,37 @@ plot_ordination(genus.otu,genus.ord,"samples",color="Pattern_1") +
 plot_ordination(genus.otu,genus.ord,"samples",color="EvNev_1") + 
   scale_color_manual(values = c("red", "blue")) + ggtitle("Genus Level NMDS with Bray-Curtis
                                                           (CSS normalized)")
-##### NO CLUSTERING #####
+##### CLUSTER UP TO SPECIES #####
 all.otu = phyloseq(otu_table(all.df,taxa_are_rows = FALSE),sample_data(sample_data))
 sample_data(sample_data)
 all.ord <- ordinate(all.otu, "NMDS", "bray")
 theme_set(theme_bw())
 plot_ordination(all.otu,all.ord,"samples",color="Pathotype_1") + 
-  scale_color_manual(values = c("red", "blue")) + ggtitle("OTU Level NMDS with Bray-Curtis
+  scale_color_manual(values = c("red", "blue")) + ggtitle("Species Level NMDS with Bray-Curtis
                                                           (CSS normalized)")
 plot_ordination(all.otu,all.ord,"samples",color="Pattern_1") + 
-  scale_color_manual(values = c("red", "blue", "green")) + ggtitle("OTU Level NMDS with Bray-Curtis
+  scale_color_manual(values = c("red", "blue", "green")) + ggtitle("Species Level NMDS with Bray-Curtis
                                                                    (CSS normalized)")
 plot_ordination(all.otu,all.ord,"samples",color="EvNev_1") + 
+  scale_color_manual(values = c("red", "blue")) + ggtitle("Species Level NMDS with Bray-Curtis
+                                                          (CSS normalized)")
+
+#### NON AGGREGATED #####
+orig.otu = phyloseq(otu_table(Normcowdata),sample_data(sample_data))
+sample_data(sample_data)
+orig.ord <- ordinate(orig.otu, "NMDS", "bray")
+theme_set(theme_bw())
+plot_ordination(orig.otu,orig.ord,"samples",color="Pathotype_1") + 
   scale_color_manual(values = c("red", "blue")) + ggtitle("OTU Level NMDS with Bray-Curtis
                                                           (CSS normalized)")
+plot_ordination(orig.otu,orig.ord,"samples",color="Pattern_1") + 
+  scale_color_manual(values = c("red", "blue", "green")) + ggtitle("OTU Level NMDS with Bray-Curtis
+                                                                   (CSS normalized)")
+plot_ordination(orig.otu,orig.ord,"samples",color="EvNev_1") + 
+  scale_color_manual(values = c("red", "blue")) + ggtitle("OTU Level NMDS with Bray-Curtis
+                                                          (CSS normalized)")
+
+
 #### PCoA with Unifrac now @@@@
 # need to make a phyloseq tree using the 'ape' package according to phyloseq 
 # github page, and save as the phytree object to be used in Unifrac creation.
@@ -218,7 +235,7 @@ Normcowdatatree <- merge_phyloseq(OTUS.1, taxa.1, sampledata.1, treefile)
 
 
 #class.otu <- merge_phyloseq(otu_table(class.df,taxa_are_rows = FALSE),
- #                           sample_data(sample_data), treefile)
+#                           sample_data(sample_data), treefile)
 
 # chose to do unweighted because data has been normalized already
 ordU = ordinate(Normcowdatatree, "PCoA", "unifrac", weighted=FALSE)
@@ -244,4 +261,22 @@ clustotu <- vegan_otu(Normcowdata)
 clustotu.h <- decostand(clustotu, "hellinger")
 clustotu.h.d <- vegdist(clustotu.h, "euclidean")
 plot(hclust(clustotu.h.d, method="average"), hang = 0.4, cex = 0.6, 
-  main = "Cluster Diagram with Hellinger-transfrormed Distance")
+  main = "Cluster Diagram Using Hellinger-transfrormed Distance")
+
+# How much does it matter that we look at different levels? Class, Order, Family
+# Genus etc? Can sum the column counts for the all.df data frame?
+dim(genus.df)
+#[1] 196 490
+dim(family.df)
+#[1] 196 235
+dim(order.df)
+#[1] 196 109
+dim(class.df)
+#[1] 196  57
+dim(phylum.df)
+#[1] 196  28
+dim(all.df)
+#[1] 196 550
+
+# many of the original OTUs (159,000) aggregate to the same level in the taxa 
+# table (to the order Clostridiales, for instance)
