@@ -261,7 +261,7 @@ clustotu <- vegan_otu(Normcowdata)
 clustotu.h <- decostand(clustotu, "hellinger")
 clustotu.h.d <- vegdist(clustotu.h, "euclidean")
 plot(hclust(clustotu.h.d, method="average"), hang = 0.4, cex = 0.6, 
-  main = "Cluster Diagram Using Hellinger-transfrormed Distance")
+  main = "Cluster Diagram Using Hellinger-transfrormed Distance and UPGMA Agglomeration")
 
 # How much does it matter that we look at different levels? Class, Order, Family
 # Genus etc? Can sum the column counts for the all.df data frame?

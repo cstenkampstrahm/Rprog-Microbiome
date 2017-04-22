@@ -9,7 +9,7 @@ library("ggplot2")
 library("xlsx")
 theme_set(theme_bw())
 biom_file <- "otu_table_mc2_w_tax_no_pynast_failures.biom"
-map_file <- "QIIME_map_all_corrected_new.txt"
+map_file <- "QIIME_map_all_corrected_new.txt"  #this is the original map file used
 biomot = import_biom(biom_file, parseFunction = parse_taxonomy_default)
 bmsd = import_qiime_sample_data(map_file)
 Cowdata <- merge_phyloseq(biomot, bmsd)
@@ -47,6 +47,10 @@ cow_samps <- c("50A", "50B", "50C", "50D", "50E", "71A", "71B", "71C", "71D", "6
 # 7A was omitted from above because no sequence data
 Cowonly <- prune_samples(cow_samps, Cowdata)
 Enviroonly <- prune_samples(enviro_samps, Cowdata)
+Cowonly
+save(Cowonly, file="Phyloseq files/Cowonly") # this is the file used in metagenomeseq
+# analysis (need to start with non-normed counts but be sure to omit cows with nothing in 
+# them like 7A etc
 
 # now going to estimate richness and shannons (observed only when not normalized) for cows:
 obsrich_values <- estimate_richness(Cowonly, measures="Observed")
@@ -77,7 +81,7 @@ Normcowdata <- merge_phyloseq(norm_otu_table, bmsd, new_tax_table)
 Normcowdata
 
 save(Normcowdata, file="Phyloseq files/Normcowdata")  ## this is the file used in 
-## later code to aggregate taxa, make heat maps, ordination plots, etc ##
+## later code of working ordi maps to aggregate taxa, make heat maps, ordination plots, etc ##
 library(ape)
 treefile <- read.tree("rep_set.tre")
 Normcowdatatree <- merge_phyloseq(norm_otu_table, bmsd, new_tax_table, treefile)

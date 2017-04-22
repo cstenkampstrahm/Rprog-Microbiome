@@ -200,11 +200,12 @@ summary(m3.3farm)
 m3.3both <- update(m3.3, .~. + Farm + Parity_1)
 summary(m3.3both)
 
+# looking at 3x6 table of farm, pattern and parity. for outcome descriptive purposes
+
+threebysix <- alpha_div_scaled %>% group_by(Pattern_1, Farm, Parity_1) %>% summarize(n = n())
 
 
 
-
-
-
+threebysix1 <- avg_alpha_div_scaled %>% group_by(Pattern_1, Farm, Parity_1) %>% summarize(n = n())
 
 
