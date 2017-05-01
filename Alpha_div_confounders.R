@@ -11,7 +11,8 @@ alpha_div_scaled <- mutate(alpha_div_scaled, "Normrich" = as.numeric(Normrich),
                            "DIM_1" = as.factor(DIM_1),
                            "Parity" = as.factor(Parity),
                           "Disease" = as.factor(Disease),
-                           "Farm" = as.factor(Farm))
+                           "Farm" = as.factor(Farm),
+                          "Treatment" = as.factor(Treatment))
 avg_alpha_div_scaled <- mutate(avg_alpha_div_scaled, "Avgrich" = as.numeric(Avgrich), 
                                "Avgshann" = as.numeric(Avgshann),
                                "Avgeven" = as.numeric(Avgeven),
@@ -22,7 +23,8 @@ avg_alpha_div_scaled <- mutate(avg_alpha_div_scaled, "Avgrich" = as.numeric(Avgr
                                "Parity" = as.factor(Parity),
                                "Parity_1" = as.factor(Parity_1),
                                "Disease" = as.factor(Disease),
-                               "Farm" = as.factor(Farm))
+                               "Farm" = as.factor(Farm),
+                               "Treatment" = as.factor(Treatment))
 
 # DIM 
 # (mixed linear with cow as random for DIM, and mixed logistic with cow as random for DIM_1)
@@ -131,5 +133,35 @@ summary(confmod24)
 confmod25 <- glm(Farm ~ Avgeven, data = avg_alpha_div_scaled, family = binomial)
 summary(confmod25)
 
+# Treatment
 
+confmod26 <- multinom(Treatment ~ Avgrich, data = avg_alpha_div_scaled)
+summary(confmod26)
+z <- summary(confmod26)$coefficients/summary(confmod26)$standard.errors
+z
+p <- (1-pnorm(abs(z), 0, 1)) * 2  
+p 
+
+
+confmod27 <- multinom(Treatment ~ Newscaleavgrich, data = avg_alpha_div_scaled)
+summary(confmod27)
+z <- summary(confmod27)$coefficients/summary(confmod27)$standard.errors
+z
+p <- (1-pnorm(abs(z), 0, 1)) * 2  
+p 
+
+
+confmod28 <- multinom(Treatment ~ Avgshann, data = avg_alpha_div_scaled)
+summary(confmod28)
+z <- summary(confmod28)$coefficients/summary(confmod28)$standard.errors
+z
+p <- (1-pnorm(abs(z), 0, 1)) * 2  
+p 
+
+confmod29 <- multinom(Treatment ~ Avgeven, data = avg_alpha_div_scaled)
+summary(confmod29)
+z <- summary(confmod29)$coefficients/summary(confmod29)$standard.errors
+z
+p <- (1-pnorm(abs(z), 0, 1)) * 2  
+p 
 
