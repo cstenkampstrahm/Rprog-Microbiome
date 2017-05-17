@@ -26,8 +26,6 @@ fData(MRexp_cowonly)
 pData(MRexp_cowonly)
 head(MRcounts(MRexp_cowonly))
 colSums(MRcounts(MRexp_cowonly))
-# per Zaid, want to norm, then aggregate, then filter samples to those only 
-# present in a certain amount of samples
 # met with Zaid on 4.21.17. For modeling best to use fitFeatureModel (as this is
 # zero inflated log normal model of the count data). Mine is currently not working,
 # and the Gaussian distribution of the method using FitZig is not ideal, because our
