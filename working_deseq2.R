@@ -21,6 +21,8 @@ deseqCowonly <- phyloseq_to_deseq2(Cowonly, ~Individual_animal + Pathotype_1)
 #https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-mixture-models.html
 # hers uses a local fit, which is regression of log dispersions over log base mean
 # versus just a dispersion mean in parametric
+# below changed to parametric and used betaPrior = TRUE to get the zero mean normal prior on 
+# the estimated coefficients
 gm_mean = function(x, na.rm=TRUE){
   exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
 }
@@ -148,12 +150,15 @@ d.genfilt1 = filterData(d.gen1, present = 50, depth = 1)
 genus1 <- MRcounts(d.genfilt1)
 
 d.spp1 = aggTax(MRexp_cowonly,lvl="Rank7", norm = FALSE) 
-d.sppfilt1 = filterData(d.spp, present = 50, depth = 1)
+d.sppfilt1 = filterData(d.spp1, present = 50, depth = 1)
 spp1 <- MRcounts(d.sppfilt1)
 
 d.fam1 = aggTax(MRexp_cowonly,lvl="Rank5", norm = FALSE)
-d.famfilt1 = filterData(d.fam, present = 50, depth = 1)
+d.famfilt1 = filterData(d.fam1, present = 50, depth = 1)
 family1 <- MRcounts(d.famfilt1)
+
+d.otu1 = filterData(MRexp_cowonly, present = 50, depth = 1)
+otu1 <- MRcounts(d.otu1)
 
 ## GENUS LEVEL WITH AGGREG THROUGH METAGENOMESEQ AND PRESENT IN 50 COWS ##
 genusotu <- otu_table(genus1, taxa_are_rows=TRUE)
@@ -164,7 +169,7 @@ sample_data(cowgenus1)$Pathotype_1 <- relevel(sample_data(cowgenus1)$Pathotype_1
 deseqcowgenus1 <- phyloseq_to_deseq2(cowgenus1, ~ Individual_animal + Pathotype_1)
 geoMeans = apply(counts(deseqcowgenus1), 1, gm_mean)
 deseqcowgenus1 = estimateSizeFactors(deseqcowgenus1, geoMeans = geoMeans)
-deseqcowgenus1 = DESeq(deseqcowgenus1, fitType="local")
+deseqcowgenus1 = DESeq(deseqcowgenus1, fitType="parametric", betaPrior = TRUE)
 res = results(deseqcowgenus1)
 res = res[order(res$padj, na.last=NA), ]
 alpha = 0.05
@@ -188,7 +193,7 @@ sample_data(cowspecies1)$Pathotype_1 <- relevel(sample_data(cowspecies1)$Pathoty
 deseqcowspecies1 <- phyloseq_to_deseq2(cowspecies1, ~ Individual_animal + Pathotype_1)
 geoMeans = apply(counts(deseqcowspecies1), 1, gm_mean)
 deseqcowspecies1 = estimateSizeFactors(deseqcowspecies1, geoMeans = geoMeans)
-deseqcowspecies1 = DESeq(deseqcowspecies1, fitType="local")
+deseqcowspecies1 = DESeq(deseqcowspecies1, fitType="parametric", betaPrior = TRUE)
 res = results(deseqcowspecies1)
 res = res[order(res$padj, na.last=NA), ]
 alpha = 0.05
@@ -212,7 +217,7 @@ sample_data(cowfamily1)$Pathotype_1 <- relevel(sample_data(cowfamily1)$Pathotype
 deseqcowfamily1 <- phyloseq_to_deseq2(cowfamily1, ~ Individual_animal + Pathotype_1)
 geoMeans = apply(counts(deseqcowfamily1), 1, gm_mean)
 deseqcowfamily1 = estimateSizeFactors(deseqcowfamily1, geoMeans = geoMeans)
-deseqcowfamily1 = DESeq(deseqcowfamily1, fitType="local")
+deseqcowfamily1 = DESeq(deseqcowfamily1, fitType="parametric", betaPrior = TRUE)
 res = results(deseqcowfamily1)
 res = res[order(res$padj, na.last=NA), ]
 alpha = 0.05
@@ -220,13 +225,118 @@ sigtab = res[(res$padj < alpha), ]
 sigtab
 res
 unique(res$padj)
-# nothing significant when correcting for multiple testing
+# nothing significant across the adjusted p values
 alpha = 0.2
 sigtab = res[(res$pvalue < alpha), ]
 sigtab
 unique(res$pvalue)
 
+# Going to try again with OTUs filtered to those present in 50 samples
+otuonly <- otu_table(otu1, taxa_are_rows=TRUE)
+cowotu1 <- merge_phyloseq(otuonly, sampledata)
+sample_data(cowotu1)$Pathotype_1 <- factor(sample_data(cowotu1)$Pathotype_1)
+sample_data(cowotu1)$Individual_animal <- factor(sample_data(cowotu1)$Individual_animal)
+sample_data(cowotu1)$Pathotype_1 <- relevel(sample_data(cowotu1)$Pathotype_1, "0")
+deseqcowotu1 <- phyloseq_to_deseq2(cowotu1, ~ Individual_animal + Pathotype_1)
+geoMeans = apply(counts(deseqcowotu1), 1, gm_mean)
+deseqcowotu1 = estimateSizeFactors(deseqcowotu1, geoMeans = geoMeans)
+deseqcowotu1 = DESeq(deseqcowotu1, fitType="parametric", betaPrior = TRUE)
+res = results(deseqcowotu1)
+restest = results(deseqcowotu1, contrast=c("Pathotype_1", "0", "1")) # get the same thing when specifying 
+# contrasts this way
+res = res[order(res$padj, na.last=NA), ]
+alpha = 0.05
+sigtab = res[(res$padj < alpha), ]
+sigtab
+res
+unique(res$padj)
+# nothing significant across the adjusted p values
+alpha = 0.2
+sigtab = res[(res$pvalue < alpha), ]
+sigtab
+unique(res$pvalue)
 
+##### Going to try the above code, but use cumulative sum scaled data to begin 
+# with:
+d.gen1norm = aggTax(MRexp_cowonly,lvl="Rank6", norm = TRUE)
+d.genfilt1norm = filterData(d.gen1norm, present = 50, depth = 1)
+genus1norm <- MRcounts(d.genfilt1norm)
+
+genusotu <- otu_table(genus1norm, taxa_are_rows=TRUE)
+cowgenus1 <- merge_phyloseq(genusotu, sampledata)
+sample_data(cowgenus1)$Pathotype_1 <- factor(sample_data(cowgenus1)$Pathotype_1)
+sample_data(cowgenus1)$Individual_animal <- factor(sample_data(cowgenus1)$Individual_animal)
+sample_data(cowgenus1)$Pathotype_1 <- relevel(sample_data(cowgenus1)$Pathotype_1, "0")
+deseqcowgenus1 <- phyloseq_to_deseq2(cowgenus1, ~ Individual_animal + Pathotype_1)
+geoMeans = apply(counts(deseqcowgenus1), 1, gm_mean)
+deseqcowgenus1 = estimateSizeFactors(deseqcowgenus1, geoMeans = geoMeans)
+deseqcowgenus1 = DESeq(deseqcowgenus1, fitType="parametric", betaPrior = TRUE)
+res = results(deseqcowgenus1)
+res = res[order(res$padj, na.last=NA), ]
+alpha = 0.05
+sigtab = res[(res$padj < alpha), ]
+sigtab
+res
+unique(res$padj)
+
+
+
+d.spp1norm = aggTax(MRexp_cowonly,lvl="Rank7", norm = TRUE) 
+d.sppfilt1norm = filterData(d.spp1norm, present = 50, depth = 1)
+spp1norm <- MRcounts(d.sppfilt1norm)
+
+speciesotu <- otu_table(spp1norm, taxa_are_rows=TRUE)
+cowspecies1 <- merge_phyloseq(speciesotu, sampledata)
+sample_data(cowspecies1)$Pathotype_1 <- factor(sample_data(cowspecies1)$Pathotype_1)
+sample_data(cowspecies1)$Individual_animal <- factor(sample_data(cowspecies1)$Individual_animal)
+sample_data(cowspecies1)$Pathotype_1 <- relevel(sample_data(cowspecies1)$Pathotype_1, "0")
+deseqcowspecies1 <- phyloseq_to_deseq2(cowspecies1, ~ Individual_animal + Pathotype_1)
+geoMeans = apply(counts(deseqcowspecies1), 1, gm_mean)
+deseqcowspecies1 = estimateSizeFactors(deseqcowspecies1, geoMeans = geoMeans)
+deseqcowspecies1 = DESeq(deseqcowspecies1, fitType="parametric", betaPrior = TRUE)
+res = results(deseqcowspecies1)
+res = res[order(res$padj, na.last=NA), ]
+alpha = 0.05
+sigtab = res[(res$padj < alpha), ]
+sigtab
+res
+unique(res$padj)
+
+d.fam1norm = aggTax(MRexp_cowonly,lvl="Rank5", norm = TRUE)
+d.famfilt1norm = filterData(d.fam1norm, present = 50, depth = 1)
+family1norm <- MRcounts(d.famfilt1norm)
+
+familyotu <- otu_table(family1norm, taxa_are_rows=TRUE)
+cowfamily1 <- merge_phyloseq(familyotu, sampledata)
+sample_data(cowfamily1)$Pathotype_1 <- factor(sample_data(cowfamily1)$Pathotype_1)
+sample_data(cowfamily1)$Individual_animal <- factor(sample_data(cowfamily1)$Individual_animal)
+sample_data(cowfamily1)$Pathotype_1 <- relevel(sample_data(cowfamily1)$Pathotype_1, "0")
+deseqcowfamily1 <- phyloseq_to_deseq2(cowfamily1, ~ Individual_animal + Pathotype_1)
+geoMeans = apply(counts(deseqcowfamily1), 1, gm_mean)
+deseqcowfamily1 = estimateSizeFactors(deseqcowfamily1, geoMeans = geoMeans)
+deseqcowfamily1 = DESeq(deseqcowfamily1, fitType="parametric", betaPrior = TRUE)
+res = results(deseqcowfamily1)
+res = res[order(res$padj, na.last=NA), ]
+alpha = 0.05
+sigtab = res[(res$padj < alpha), ]
+sigtab
+res
+unique(res$padj)
+
+
+
+
+
+
+
+
+
+## FIXED WHAT WAS BEING TRIED BELOW- NEED BETAPRIOR=TRUE and OKAY ##
+## Going to try to get a -1 in the model call.....,specify design~1 in phylo_to_des
+# then DESeq put in design
+familytest <- phyloseq_to_deseq2(cowfamily1, ~1)
+familytest = estimateSizeFactors(familytest, geoMeans = geoMeans)
+familytest = DESeq(familytest, fitType="local")
 
 
 
