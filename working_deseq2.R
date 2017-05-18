@@ -135,6 +135,108 @@ alpha = 0.05
 sigtab = res[(res$pvalue < alpha), ]
 # once again, nothing is significant after correcting for multiple testing
 # maybe need to filter to OTUs that are only present in 50 (25%) of the cows?
+# in metagenomeseq files from committee_meeting_5.4.17.R file,
+# d.famfilt, d.genfilt, and d.sppfilt are those count tables filtered to taxa present
+# in 50 samples. Metagenomseq assayData is not that easily converted to different 
+# formats than the eSet ones. But can convert these tables to biom ones....
+# lots of trouble but just using MRcounts call to get the tables to matrices
+# THESE HAVE BEEN NORMALIZED WITH CUMULATIVE SUM SCALING! #
+genus <- MRcounts(d.genfilt)
+# Non-normalized
+d.gen1 = aggTax(MRexp_cowonly,lvl="Rank6", norm = FALSE)
+d.genfilt1 = filterData(d.gen1, present = 50, depth = 1)
+genus1 <- MRcounts(d.genfilt1)
+
+d.spp1 = aggTax(MRexp_cowonly,lvl="Rank7", norm = FALSE) 
+d.sppfilt1 = filterData(d.spp, present = 50, depth = 1)
+spp1 <- MRcounts(d.sppfilt1)
+
+d.fam1 = aggTax(MRexp_cowonly,lvl="Rank5", norm = FALSE)
+d.famfilt1 = filterData(d.fam, present = 50, depth = 1)
+family1 <- MRcounts(d.famfilt1)
+
+## GENUS LEVEL WITH AGGREG THROUGH METAGENOMESEQ AND PRESENT IN 50 COWS ##
+genusotu <- otu_table(genus1, taxa_are_rows=TRUE)
+cowgenus1 <- merge_phyloseq(genusotu, sampledata)
+sample_data(cowgenus1)$Pathotype_1 <- factor(sample_data(cowgenus1)$Pathotype_1)
+sample_data(cowgenus1)$Individual_animal <- factor(sample_data(cowgenus1)$Individual_animal)
+sample_data(cowgenus1)$Pathotype_1 <- relevel(sample_data(cowgenus1)$Pathotype_1, "0")
+deseqcowgenus1 <- phyloseq_to_deseq2(cowgenus1, ~ Individual_animal + Pathotype_1)
+geoMeans = apply(counts(deseqcowgenus1), 1, gm_mean)
+deseqcowgenus1 = estimateSizeFactors(deseqcowgenus1, geoMeans = geoMeans)
+deseqcowgenus1 = DESeq(deseqcowgenus1, fitType="local")
+res = results(deseqcowgenus1)
+res = res[order(res$padj, na.last=NA), ]
+alpha = 0.05
+sigtab = res[(res$padj < alpha), ]
+sigtab
+res
+unique(res$padj)
+# nothing sig diff with multiple testing
+alpha = 0.2
+sigtab = res[(res$pvalue < alpha), ]
+sigtab
+unique(res$pvalue)
+# pvalues not corrected for multiple testing show a couple <0.06
+
+## SPECIES LEVEL WITH AGGREG THROUGH METAGENOMESEQ AND PRESENT IN 50 COWS ##
+speciesotu <- otu_table(spp1, taxa_are_rows=TRUE)
+cowspecies1 <- merge_phyloseq(speciesotu, sampledata)
+sample_data(cowspecies1)$Pathotype_1 <- factor(sample_data(cowspecies1)$Pathotype_1)
+sample_data(cowspecies1)$Individual_animal <- factor(sample_data(cowspecies1)$Individual_animal)
+sample_data(cowspecies1)$Pathotype_1 <- relevel(sample_data(cowspecies1)$Pathotype_1, "0")
+deseqcowspecies1 <- phyloseq_to_deseq2(cowspecies1, ~ Individual_animal + Pathotype_1)
+geoMeans = apply(counts(deseqcowspecies1), 1, gm_mean)
+deseqcowspecies1 = estimateSizeFactors(deseqcowspecies1, geoMeans = geoMeans)
+deseqcowspecies1 = DESeq(deseqcowspecies1, fitType="local")
+res = results(deseqcowspecies1)
+res = res[order(res$padj, na.last=NA), ]
+alpha = 0.05
+sigtab = res[(res$padj < alpha), ]
+sigtab
+res
+unique(res$padj)
+# nothing significant across the adjusted p values
+alpha = 0.2
+sigtab = res[(res$pvalue < alpha), ]
+sigtab
+unique(res$pvalue)
+
+
+## FAMILY LEVEL WITH AGGREG THROUGH METAGENOMESEQ AND PRESENT IN 50 COWS ##
+familyotu <- otu_table(family1, taxa_are_rows=TRUE)
+cowfamily1 <- merge_phyloseq(familyotu, sampledata)
+sample_data(cowfamily1)$Pathotype_1 <- factor(sample_data(cowfamily1)$Pathotype_1)
+sample_data(cowfamily1)$Individual_animal <- factor(sample_data(cowfamily1)$Individual_animal)
+sample_data(cowfamily1)$Pathotype_1 <- relevel(sample_data(cowfamily1)$Pathotype_1, "0")
+deseqcowfamily1 <- phyloseq_to_deseq2(cowfamily1, ~ Individual_animal + Pathotype_1)
+geoMeans = apply(counts(deseqcowfamily1), 1, gm_mean)
+deseqcowfamily1 = estimateSizeFactors(deseqcowfamily1, geoMeans = geoMeans)
+deseqcowfamily1 = DESeq(deseqcowfamily1, fitType="local")
+res = results(deseqcowfamily1)
+res = res[order(res$padj, na.last=NA), ]
+alpha = 0.05
+sigtab = res[(res$padj < alpha), ]
+sigtab
+res
+unique(res$padj)
+# nothing significant when correcting for multiple testing
+alpha = 0.2
+sigtab = res[(res$pvalue < alpha), ]
+sigtab
+unique(res$pvalue)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -156,5 +258,3 @@ head(sigtab)
 # based on the notation of what variance stabilization is/is used for, and the fact that
 # the McMurdie script does not use it and shes the guru of doing this stuff with 
 # microbiome specific data sets
-
-
