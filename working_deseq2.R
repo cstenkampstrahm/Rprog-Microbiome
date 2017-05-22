@@ -88,7 +88,7 @@ combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=5)
 family.df = combined.ls[[1]]
 combined.ls = taxa.split.combine.qiime.ftn(taxa.df=taxa1.df,d.df=OTUS,l=6)
 genus.df = combined.ls[[1]]
-combined.ls = taxa.split.combine.qimme.ftn(taxa.df=taxa1.df,d.df=OTUS,1=7
+combined.ls = taxa.split.combine.qimme.ftn(taxa.df=taxa1.df,d.df=OTUS,1=7)
 # for some reason can't get the species level aggregation to work. need to look
 # into the code from zaid (1=7 in code above does not work)
 # now need to make this the count data for the phyloseq object
@@ -141,24 +141,29 @@ sigtab = res[(res$pvalue < alpha), ]
 # d.famfilt, d.genfilt, and d.sppfilt are those count tables filtered to taxa present
 # in 50 samples. Metagenomseq assayData is not that easily converted to different 
 # formats than the eSet ones. But can convert these tables to biom ones....
-# lots of trouble but just using MRcounts call to get the tables to matrices
+# lots of trouble doing this
+# just using MRcounts call to get the tables to matrices
 # THESE HAVE BEEN NORMALIZED WITH CUMULATIVE SUM SCALING! #
 genus <- MRcounts(d.genfilt)
 # Non-normalized
 d.gen1 = aggTax(MRexp_cowonly,lvl="Rank6", norm = FALSE)
 d.genfilt1 = filterData(d.gen1, present = 50, depth = 1)
 genus1 <- MRcounts(d.genfilt1)
+genus2 <- MRcounts(d.gen1)
 
 d.spp1 = aggTax(MRexp_cowonly,lvl="Rank7", norm = FALSE) 
 d.sppfilt1 = filterData(d.spp1, present = 50, depth = 1)
 spp1 <- MRcounts(d.sppfilt1)
+spp2 <- MRcounts(d.spp1)
 
 d.fam1 = aggTax(MRexp_cowonly,lvl="Rank5", norm = FALSE)
 d.famfilt1 = filterData(d.fam1, present = 50, depth = 1)
 family1 <- MRcounts(d.famfilt1)
+family2 <- MRcounts(d.fam1)
 
 d.otu1 = filterData(MRexp_cowonly, present = 50, depth = 1)
 otu1 <- MRcounts(d.otu1)
+otu2 <- MRcounts(MRexp_cowonly)
 
 ## GENUS LEVEL WITH AGGREG THROUGH METAGENOMESEQ AND PRESENT IN 50 COWS ##
 genusotu <- otu_table(genus1, taxa_are_rows=TRUE)
@@ -271,7 +276,10 @@ deseqcowgenus1 <- phyloseq_to_deseq2(cowgenus1, ~ Individual_animal + Pathotype_
 geoMeans = apply(counts(deseqcowgenus1), 1, gm_mean)
 deseqcowgenus1 = estimateSizeFactors(deseqcowgenus1, geoMeans = geoMeans)
 deseqcowgenus1 = DESeq(deseqcowgenus1, fitType="parametric", betaPrior = TRUE)
+#deseqcowgenus12 = DESeq(deseqcowgenus1, fitType="parametric")
 res = results(deseqcowgenus1)
+#res12 = results(deseqcowgenus12) # the results from this, with no betaPrior are the same
+# as for betaPrior = TRUE
 res = res[order(res$padj, na.last=NA), ]
 alpha = 0.05
 sigtab = res[(res$padj < alpha), ]
@@ -323,9 +331,16 @@ sigtab
 res
 unique(res$padj)
 
-
-
-
+# Looks like betaPrior = TRUE gets us the same results for log2fold change...
+# want to make sure that there is a 0 in the intercept when the forumal created.
+# when attempting to do this, the call for DESeq forces you to put betaprior=false
+deseqcowfamily2 <- phyloseq_to_deseq2(cowfamily1, ~Individual_animal + Pathotype_1 - 1)
+deseqcowfamily2 <- DESeq(deseqcowfamily2, fitType = "parametric", betaPrior = FALSE)
+results2 <- results(deseqcowfamily2, contrast=c("Pathotype_1", "1", "0"))
+# these results appear to be different than what was in res12 and res from above family test,
+# need to go through and redo with the appropriate contrasts using a model matrix that is 
+# having a -1 in the right column
+Data sets
 
 
 
