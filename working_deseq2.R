@@ -8,7 +8,8 @@ library("DESeq2")
 library(phyloseq)
 load("Phyloseq files/Cowonly")
 Cowonly
-
+MRexp_cowonly <- phyloseq_to_metagenomeSeq(Cowonly)
+MRexp_cowonly
 # set the reference sample class of Pathotype_1 to "0", make factors for design matrix:
 sample_data(Cowonly)$Pathotype_1 <- factor(sample_data(Cowonly)$Pathotype_1) #makes a factor
 sample_data(Cowonly)$Individual_animal <- factor(sample_data(Cowonly)$Individual_animal)#makes a factor
