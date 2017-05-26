@@ -78,3 +78,22 @@ fit4 = eBayes(fit4) # looking at the error of the residuals here
 topTable(fit4)
 View(topTable(fit4))
 
+###### Now want to look at DP vs NS #####
+### Only going to make models with filtered 
+## Make phyloseq object with cows of interest
+# DP samples and single random sample from NS cows (no duplicate cows in either,
+# n = 12 and n = 24)
+dpvsnsSubset <- c("18D", "1C", "30C", "45C", "48A", "50D", "58B", "63D", "64D", "6C", 
+                  "74B", "8B", "14D", "15C", "20C", "24C", "29A", "34D", "35B", "39D", 
+                  "42D", "44C", "52B", "53B", "55A", "60B", "61C", "62D", "65E", "66A", 
+                  "68B", "69C", "70D", "73E", "71A", "7B")
+dpvsnsSubset <- prune_samples(dpvsnsSubset, Cowonly)
+MRexp_dpvsnsSubset <- phyloseq_to_metagenomeSeq(dpvsnsSubset)
+MRexp_dpvsnsSubset
+
+dp.gen = aggTax(MRexp_dpvsnsSubset,lvl="Rank6", norm = TRUE) 
+dp.spp = aggTax(MRexp_dpvsnsSubset,lvl="Rank7", norm = TRUE) 
+dp.fam = aggTax(MRexp_dpvsnsSubset,lvl="Rank5", norm = TRUE)
+dp.class = aggTax(MRexp_dpvsnsSubset, lvl="Rank3", norm = TRUE)
+dp.ord = aggTax(MRexp_dpvsnsSubset, lvl="Rank4", norm = TRUE)
+tp.df = pData(MRexp_dpvsnsSubset)

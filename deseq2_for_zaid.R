@@ -48,7 +48,8 @@ gm_mean = function(x, na.rm=TRUE){
 #### GENUS LEVEL ######
 ## NON-FILTERED
 genusnofilt <- otu_table(genus2, taxa_are_rows=TRUE)
-genusnofilt <- merge_phyloseq(genusnofilt, sampledata)
+genusnofilt <- merge_phyloseq(genusnofilt, sampledata) # somehow can acquire the sample data from 
+# original metagenomeseq object
 sample_data(genusnofilt)$Pathotype_1 <- factor(sample_data(genusnofilt)$Pathotype_1)
 sample_data(genusnofilt)$Individual_animal <- factor(sample_data(genusnofilt)$Individual_animal)
 sample_data(genusnofilt)$Pathotype_1 <- relevel(sample_data(genusnofilt)$Pathotype_1, "0")
@@ -385,7 +386,20 @@ sigtab23.1
 sigtab24.1
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 ###### Now want to look at DP vs NS #####
+### Only going to make models with filtered or non filtered and the geomeans option
 ## Make phyloseq object with cows of interest
 # DP samples and single random sample from NS cows (no duplicate cows in either,
 # n = 12 and n = 24)
@@ -411,4 +425,402 @@ dpvsns <- c("18D", "1C", "30C", "45C", "48A", "50D", "58B", "63D", "64D", "6C",
             "71D", "73A", "73B", "73C", "73D", "73E", "7B", "7C", "7D", "7E")
 dpvsns <- prune_samples(dpvsns, Cowonly)
 
+#### DPvsNSSubset ####
+
+MRexp_dpvsnsSubset <- phyloseq_to_metagenomeSeq(dpvsnsSubset)
+MRexp_dpvsnsSubset
+
+gen1dnsub = aggTax(MRexp_dpvsnsSubset,lvl="Rank6", norm = FALSE)
+genfiltdnsub = filterData(gen1dnsub, present = 12, depth = 1)
+genus1dnsub <- MRcounts(genfiltdnsub)
+genus2dnsub <- MRcounts(gen1dnsub)
+
+spp1dnsub = aggTax(MRexp_dpvsnsSubset,lvl="Rank7", norm = FALSE) 
+sppfiltdnsub = filterData(spp1dnsub, present = 12, depth = 1)
+spp.1dnsub <- MRcounts(sppfiltdnsub)
+spp.2dnsub <- MRcounts(spp1dnsub)
+
+fam1dnsub = aggTax(MRexp_dpvsnsSubset,lvl="Rank5", norm = FALSE)
+famfiltdnsub = filterData(fam1dnsub, present = 12, depth = 1)
+family1dnsub <- MRcounts(famfiltdnsub)
+family2dnsub <- MRcounts(fam1dnsub)
+
+otu1dnsub = filterData(MRexp_dpvsnsSubset, present = 12, depth = 1)
+otu1.dnsub <- MRcounts(otu1dnsub)
+otu2.dnsub <- MRcounts(MRexp_dpvsnsSubset)
+
+#### GENUS LEVEL ######
+## NON-FILTERED
+genusnofiltdnsub <- otu_table(genus2dnsub, taxa_are_rows=TRUE)
+genusnofiltdnsub <- merge_phyloseq(genusnofiltdnsub, sampledata) # somehow can acquire the sample data from 
+# original metagenomeseq object
+sample_data(genusnofiltdnsub)$DPvNS <- factor(sample_data(genusnofiltdnsub)$DPvNS)
+sample_data(genusnofiltdnsub)$Individual_animal <- factor(sample_data(genusnofiltdnsub)$Individual_animal) # don't need this line of code really...
+sample_data(genusnofiltdnsub)$DPvNS <- relevel(sample_data(genusnofiltdnsub)$DPvNS, "0")
+genusnofiltdnsubDESEQ <- phyloseq_to_deseq2(genusnofiltdnsub, ~DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(genusnofiltdnsubDESEQ), 1, gm_mean) 
+genusnofiltdnsubDESEQg = estimateSizeFactors(genusnofiltdnsubDESEQ, geoMeans = geoMeans)
+genusnofiltdnsubDESEQg = DESeq(genusnofiltdnsubDESEQg, fitType="local", betaPrior = FALSE)
+genusnofiltdnsubresultsG <- results(genusnofiltdnsubDESEQg, contrast=c("DPvNS", "1", "0"))
+resdnsub1 = genusnofiltdnsubresultsG
+resdnsub1 = resdnsub1[order(resdnsub1$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdnsub1 = resdnsub1[(resdnsub1$padj < alpha), ]
+sigtabdnsub2 = resdnsub1[(resdnsub1$pvalue < alpha), ]
+sigtabdnsub1
+sigtabdnsub2
+
+## FILTERED
+genusfiltdnsub <- otu_table(genus1dnsub, taxa_are_rows=TRUE)
+genusfiltdnsub <- merge_phyloseq(genusfiltdnsub, sampledata)
+sample_data(genusfiltdnsub)$DPvNS <- factor(sample_data(genusfiltdnsub)$DPvNS)
+sample_data(genusfiltdnsub)$Individual_animal <- factor(sample_data(genusfiltdnsub)$Individual_animal)
+sample_data(genusfiltdnsub)$DPvNS <- relevel(sample_data(genusfiltdnsub)$DPvNS, "0")
+genusfiltdnsubDESEQ <- phyloseq_to_deseq2(genusfiltdnsub, ~DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(genusfiltdnsubDESEQ), 1, gm_mean)
+genusfiltdnsubDESEQg = estimateSizeFactors(genusfiltdnsubDESEQ, geoMeans = geoMeans)
+genusfiltdnsubDESEQg = DESeq(genusfiltdnsubDESEQg, fitType="local", betaPrior = FALSE)
+genusfiltdnsubresultsG <- results(genusfiltdnsubDESEQg, contrast=c("DPvNS", "1", "0"))
+resdnsub3 = genusfiltdnsubresultsG
+resdnsub3 = resdnsub3[order(resdnsub3$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdnsub3= resdnsub3[(resdnsub3$padj < alpha), ]
+sigtabdnsub4 = resdnsub3[(resdnsub3$pvalue < alpha), ]
+sigtabdnsub3
+sigtabdnsub4
+
+#### SPECIES LEVEL ######
+## NON-FILTERED
+sppnofiltdnsub <- otu_table(spp.2dnsub, taxa_are_rows=TRUE)
+sppnofiltdnsub <- merge_phyloseq(sppnofiltdnsub, sampledata)
+sample_data(sppnofiltdnsub)$DPvNS <- factor(sample_data(sppnofiltdnsub)$DPvNS)
+sample_data(sppnofiltdnsub)$Individual_animal <- factor(sample_data(sppnofiltdnsub)$Individual_animal)
+sample_data(sppnofiltdnsub)$DPvNS <- relevel(sample_data(sppnofiltdnsub)$DPvNS, "0")
+sppnofiltdnsubDESEQ <- phyloseq_to_deseq2(sppnofiltdnsub, ~DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(sppnofiltdnsubDESEQ), 1, gm_mean) 
+sppnofiltdnsubDESEQg = estimateSizeFactors(sppnofiltdnsubDESEQ, geoMeans = geoMeans)
+sppnofiltdnsubDESEQg = DESeq(sppnofiltdnsubDESEQg, fitType="local", betaPrior = FALSE)
+sppnofiltdnsubresultsG <- results(sppnofiltdnsubDESEQg, contrast=c("DPvNS", "1", "0"))
+resdnsub4 = sppnofiltdnsubresultsG
+resdnsub4 = resdnsub4[order(resdnsub4$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdnsub5 = resdnsub4[(resdnsub4$padj < alpha), ]
+sigtabdnsub6 = resdnsub4[(resdnsub4$pvalue < alpha), ]
+sigtabdnsub5
+sigtabdnsub6
+
+## FILTERED
+sppfiltdnsub <- otu_table(spp.1dnsub, taxa_are_rows=TRUE)
+sppfiltdnsub <- merge_phyloseq(sppfiltdnsub, sampledata)
+sample_data(sppfiltdnsub)$DPvNS <- factor(sample_data(sppfiltdnsub)$DPvNS)
+sample_data(sppfiltdnsub)$Individual_animal <- factor(sample_data(sppfiltdnsub)$Individual_animal)
+sample_data(sppfiltdnsub)$DPvNS <- relevel(sample_data(sppfiltdnsub)$DPvNS, "0")
+sppfiltdnsubDESEQ <- phyloseq_to_deseq2(sppfiltdnsub, ~DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(sppfiltdnsubDESEQ), 1, gm_mean)
+sppfiltdnsubDESEQg = estimateSizeFactors(sppfiltdnsubDESEQ, geoMeans = geoMeans)
+sppfiltdnsubDESEQg = DESeq(sppfiltdnsubDESEQg, fitType="local", betaPrior = FALSE)
+sppfiltdnsubresultsG <- results(sppfiltdnsubDESEQg, contrast=c("DPvNS", "1", "0"))
+resdnsub5 = sppfiltdnsubresultsG
+resdnsub5 = resdnsub5[order(resdnsub5$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdnsub7 = resdnsub5[(resdnsub5$padj < alpha), ]
+sigtabdnsub8 = resdnsub5[(resdnsub5$pvalue < alpha), ]
+sigtabdnsub7
+sigtabdnsub8
+
+#### FAMILY LEVEL ######
+## NON-FILTERED
+famnofiltdnsub <- otu_table(family2dnsub, taxa_are_rows=TRUE)
+famnofiltdnsub <- merge_phyloseq(famnofiltdnsub, sampledata)
+sample_data(famnofiltdnsub)$DPvNS <- factor(sample_data(famnofiltdnsub)$DPvNS)
+sample_data(famnofiltdnsub)$Individual_animal <- factor(sample_data(famnofiltdnsub)$Individual_animal)
+sample_data(famnofiltdnsub)$DPvNS <- relevel(sample_data(famnofiltdnsub)$DPvNS, "0")
+famnofiltdnsubDESEQ <- phyloseq_to_deseq2(famnofiltdnsub, ~DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(famnofiltdnsubDESEQ), 1, gm_mean) 
+famnofiltdnsubDESEQg = estimateSizeFactors(famnofiltdnsubDESEQ, geoMeans = geoMeans)
+famnofiltdnsubDESEQg = DESeq(famnofiltdnsubDESEQg, fitType="local", betaPrior = FALSE)
+famnofiltdnsubresultsG <- results(famnofiltdnsubDESEQg, contrast=c("DPvNS", "1", "0"))
+resdnsub6 = famnofiltdnsubresultsG
+resdnsub6 = resdnsub6[order(resdnsub6$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdnsub9 = resdnsub6[(resdnsub6$padj < alpha), ]
+sigtabdnsub10 = resdnsub6[(resdnsub6$pvalue < alpha), ]
+sigtabdnsub9
+sigtabdnsub10
+
+## FILTERED
+famfiltdnsub <- otu_table(family1dnsub, taxa_are_rows=TRUE)
+famfiltdnsub <- merge_phyloseq(famfiltdnsub, sampledata)
+sample_data(famfiltdnsub)$DPvNS <- factor(sample_data(famfiltdnsub)$DPvNS)
+sample_data(famfiltdnsub)$Individual_animal <- factor(sample_data(famfiltdnsub)$Individual_animal)
+sample_data(famfiltdnsub)$DPvNS <- relevel(sample_data(famfiltdnsub)$DPvNS, "0")
+famfiltdnsubDESEQ <- phyloseq_to_deseq2(famfiltdnsub, ~DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(famfiltdnsubDESEQ), 1, gm_mean)
+famfiltdnsubDESEQg = estimateSizeFactors(famfiltdnsubDESEQ, geoMeans = geoMeans)
+famfiltdnsubDESEQg = DESeq(famfiltdnsubDESEQg, fitType="local", betaPrior = FALSE)
+famfiltdnsubresultsG <- results(famfiltdnsubDESEQg, contrast=c("DPvNS", "1", "0"))
+resdnsub7 = famfiltdnsubresultsG
+resdnsub7 = resdnsub7[order(resdnsub7$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdnsub11 = resdnsub7[(resdnsub7$padj < alpha), ]
+sigtabdnsub12 = resdnsub7[(resdnsub7$pvalue < alpha), ]
+sigtabdnsub11
+sigtabdnsub12
+
+##### OTU LEVEL #####
+## NON-FILTERED
+otunofiltdnsub <- otu_table(otu2.dnsub, taxa_are_rows=TRUE)
+otunofiltdnsub <- merge_phyloseq(otunofiltdnsub, sampledata)
+sample_data(otunofiltdnsub)$DPvNS <- factor(sample_data(otunofiltdnsub)$DPvNS)
+sample_data(otunofiltdnsub)$Individual_animal <- factor(sample_data(otunofiltdnsub)$Individual_animal)
+sample_data(otunofiltdnsub)$DPvNS <- relevel(sample_data(otunofiltdnsub)$DPvNS, "0")
+otunofiltdnsubDESEQ <- phyloseq_to_deseq2(otunofiltdnsub, ~DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(otunofiltdnsubDESEQ), 1, gm_mean) 
+otunofiltdnsubDESEQg = estimateSizeFactors(otunofiltdnsubDESEQ, geoMeans = geoMeans)
+otunofiltdnsubDESEQg = DESeq(otunofiltdnsubDESEQg, fitType="local", betaPrior = FALSE)
+otunofiltdnsubresultsG <- results(otunofiltdnsubDESEQg, contrast=c("DPvNS", "1", "0"))
+resdnsub8 = otunofiltdnsubresultsG
+resdnsub8 = resdnsub8[order(resdnsub8$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdnsub13 = resdnsub8[(resdnsub8$padj < alpha), ]
+sigtabdnsub14 = resdnsub8[(resdnsub8$pvalue < alpha), ]
+sigtabdnsub13
+sigtabdnsub14
+
+## FILTERED
+otufiltdnsub <- otu_table(otu1.dnsub, taxa_are_rows=TRUE)
+otufiltdnsub <- merge_phyloseq(otufiltdnsub, sampledata)
+sample_data(otufiltdnsub)$DPvNS <- factor(sample_data(otufiltdnsub)$DPvNS)
+sample_data(otufiltdnsub)$Individual_animal <- factor(sample_data(otufiltdnsub)$Individual_animal)
+sample_data(otufiltdnsub)$DPvNS <- relevel(sample_data(otufiltdnsub)$DPvNS, "0")
+otufiltdnsubDESEQ <- phyloseq_to_deseq2(otufiltdnsub, ~DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(otufiltdnsubDESEQ), 1, gm_mean)
+otufiltdnsubDESEQg = estimateSizeFactors(otufiltdnsubDESEQ, geoMeans = geoMeans)
+otufiltdnsubDESEQg = DESeq(otufiltdnsubDESEQg, fitType="local", betaPrior = FALSE)
+otufiltdnsubresultsG <- results(otufiltdnsubDESEQg, contrast=c("DPvNS", "1", "0"))
+resdnsub9 = otufiltdnsubresultsG
+resdnsub9 = resdnsub9[order(resdnsub9$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdnsub15 = resdnsub9[(resdnsub9$padj < alpha), ]
+sigtabdnsub16 = resdnsub9[(resdnsub9$pvalue < alpha), ]
+sigtabdnsub15
+sigtabdnsub16
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### DPvsNS  ####
+###### CAN'T LOOK AT THE DATA THIS WAY BECAUSE HAVE LINEAR COMBOS OF COLUMNS! HAVE TO DO IT
+##### WITHOUT CONTROLLING FOR ANIMAL, BECAUSE THE ANIMAL WILL PREDICT THE DPVSNS CLASSIFICATION (LINEAR
+MRexp_dpvsns <- phyloseq_to_metagenomeSeq(dpvsns)
+MRexp_dpvsns
+
+
+gen1dn = aggTax(MRexp_dpvsns,lvl="Rank6", norm = FALSE)
+genfiltdn = filterData(gen1dn, present = 33, depth = 1)
+genus1dn <- MRcounts(genfiltdn)
+genus2dn <- MRcounts(gen1dn)
+
+spp1dn = aggTax(MRexp_dpvsns,lvl="Rank7", norm = FALSE) 
+sppfiltdn = filterData(spp1dn, present = 33, depth = 1)
+spp.1dn <- MRcounts(sppfiltdn)
+spp.2dn <- MRcounts(spp1dn)
+
+fam1dn = aggTax(MRexp_dpvsns,lvl="Rank5", norm = FALSE)
+famfiltdn = filterData(fam1dn, present = 33, depth = 1)
+family1dn <- MRcounts(famfiltdn)
+family2dn <- MRcounts(fam1dn)
+
+otu1dn = filterData(MRexp_dpvsns, present = 33, depth = 1)
+otu1.dn <- MRcounts(otu1dn)
+otu2.dn <- MRcounts(MRexp_dpvsns)
+
+#### GENUS LEVEL ######
+## NON-FILTERED
+genusnofiltdn <- otu_table(genus2dn, taxa_are_rows=TRUE)
+genusnofiltdn <- merge_phyloseq(genusnofiltdn, sampledata) # somehow can acquire the sample data from 
+# original metagenomeseq object
+sample_data(genusnofiltdn)$DPvNS <- factor(sample_data(genusnofiltdn)$DPvNS)
+sample_data(genusnofiltdn)$Individual_animal <- factor(sample_data(genusnofiltdn)$Individual_animal) # not full rank, bec one variable linear
+# combo of another variable
+sample_data(genusnofiltdn)$DPvNS <- relevel(sample_data(genusnofiltdn)$DPvNS, "0")
+genusnofiltdnDESEQ <- phyloseq_to_deseq2(genusnofiltdn, ~Individual_animal + DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(genusnofiltdnDESEQ), 1, gm_mean) 
+genusnofiltdnDESEQg = estimateSizeFactors(genusnofiltdnDESEQ, geoMeans = geoMeans)
+genusnofiltdnDESEQg = DESeq(genusnofiltdnDESEQg, fitType="local", betaPrior = FALSE)
+genusnofiltdnresultsG <- results(genusnofiltdnDESEQg, contrast=c("DPvNS", "1", "0"))
+resdn1 = genusnofiltdnresultsG
+resdn1 = resdn1[order(resdn1$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdn1 = resdn1[(resdn1$padj < alpha), ]
+sigtabdn2 = resdnsub1[(resdn1$pvalue < alpha), ]
+sigtabdn1
+sigtabdn2
+
+## FILTERED
+genusfiltdn <- otu_table(genus1dn, taxa_are_rows=TRUE)
+genusfiltdn <- merge_phyloseq(genusfiltdn, sampledata)
+sample_data(genusfiltdn)$DPvNS <- factor(sample_data(genusfiltdn)$DPvNS)
+sample_data(genusfiltdn)$Individual_animal <- factor(sample_data(genusfiltdn)$Individual_animal)
+sample_data(genusfiltdn)$DPvNS <- relevel(sample_data(genusfiltdn)$DPvNS, "0")
+genusfiltdnDESEQ <- phyloseq_to_deseq2(genusfiltdn, ~Individual_animal + DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(genusfiltdnDESEQ), 1, gm_mean)
+genusfiltdnDESEQg = estimateSizeFactors(genusfiltdnDESEQ, geoMeans = geoMeans)
+genusfiltdnDESEQg = DESeq(genusfiltdnDESEQg, fitType="local", betaPrior = FALSE)
+genusfiltdnresultsG <- results(genusfiltdnDESEQg, contrast=c("DPvNS", "1", "0"))
+resdn3 = genusfiltdnresultsG
+resdn3 = resdnsub3[order(resdn3$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdn3= resdn3[(resdn3$padj < alpha), ]
+sigtabdn4 = resdn3[(resdn3$pvalue < alpha), ]
+sigtabdn3
+sigtabdn4
+
+#### SPECIES LEVEL ######
+## NON-FILTERED
+sppnofiltdn <- otu_table(spp.2dn, taxa_are_rows=TRUE)
+sppnofiltdn <- merge_phyloseq(sppnofiltdn, sampledata)
+sample_data(sppnofiltdn)$DPvNS <- factor(sample_data(sppnofiltdn)$DPvNS)
+sample_data(sppnofiltdn)$Individual_animal <- factor(sample_data(sppnofiltdn)$Individual_animal)
+sample_data(sppnofiltdn)$DPvNS <- relevel(sample_data(sppnofiltdn)$DPvNS, "0")
+sppnofiltdnDESEQ <- phyloseq_to_deseq2(sppnofiltdn, ~Individual_animal + DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(sppnofiltdnDESEQ), 1, gm_mean) 
+sppnofiltdnDESEQg = estimateSizeFactors(sppnofiltdnDESEQ, geoMeans = geoMeans)
+sppnofiltdnDESEQg = DESeq(sppnofiltdnDESEQg, fitType="local", betaPrior = FALSE)
+sppnofiltdnresultsG <- results(sppnofiltdnDESEQg, contrast=c("DPvNS", "1", "0"))
+resdn4 = sppnofiltdnresultsG
+resdn4 = resdn4[order(resdn4$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdn5 = resdn4[(resdn4$padj < alpha), ]
+sigtabdn6 = resdn4[(resdn4$pvalue < alpha), ]
+sigtabdn5
+sigtabdn6
+
+## FILTERED
+sppfiltdn <- otu_table(spp.1dn, taxa_are_rows=TRUE)
+sppfiltdn <- merge_phyloseq(sppfiltdn, sampledata)
+sample_data(sppfiltdn)$DPvNS <- factor(sample_data(sppfiltdn)$DPvNS)
+sample_data(sppfiltdn)$Individual_animal <- factor(sample_data(sppfiltdn)$Individual_animal)
+sample_data(sppfiltdn)$DPvNS <- relevel(sample_data(sppfiltdn)$DPvNS, "0")
+sppfiltdnDESEQ <- phyloseq_to_deseq2(sppfiltdn, ~Individual_animal + DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(sppfiltdnDESEQ), 1, gm_mean)
+sppfiltdnDESEQg = estimateSizeFactors(sppfiltdnDESEQ, geoMeans = geoMeans)
+sppfiltdnDESEQg = DESeq(sppfiltdnDESEQg, fitType="local", betaPrior = FALSE)
+sppfiltdnresultsG <- results(sppfiltdnDESEQg, contrast=c("DPvNS", "1", "0"))
+resdn5 = sppfiltdnresultsG
+resdn5 = resdn5[order(resdn5$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdn7 = resdn5[(resdn5$padj < alpha), ]
+sigtabdn8 = resdn5[(resdn5$pvalue < alpha), ]
+sigtabdn7
+sigtabdn8
+
+#### FAMILY LEVEL ######
+## NON-FILTERED
+famnofiltdn <- otu_table(family2dn, taxa_are_rows=TRUE)
+famnofiltdn <- merge_phyloseq(famnofiltdn, sampledata)
+sample_data(famnofiltdn)$DPvNS <- factor(sample_data(famnofiltdn)$DPvNS)
+sample_data(famnofiltdn)$Individual_animal <- factor(sample_data(famnofiltdn)$Individual_animal)
+sample_data(famnofiltdn)$DPvNS <- relevel(sample_data(famnofiltdn)$DPvNS, "0")
+famnofiltdnDESEQ <- phyloseq_to_deseq2(famnofiltdn, ~Individual_animal + DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(famnofiltdnDESEQ), 1, gm_mean) 
+famnofiltdnDESEQg = estimateSizeFactors(famnofiltdnDESEQ, geoMeans = geoMeans)
+famnofiltdnDESEQg = DESeq(famnofiltdnDESEQg, fitType="local", betaPrior = FALSE)
+famnofiltdnresultsG <- results(famnofiltdnDESEQg, contrast=c("DPvNS", "1", "0"))
+resdn6 = famnofiltdnresultsG
+resdn6 = resdn6[order(resdn6$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdn9 = resdn6[(resdn6$padj < alpha), ]
+sigtabdn10 = resdn6[(resdn6$pvalue < alpha), ]
+sigtabdn9
+sigtabdn10
+
+## FILTERED
+famfiltdn <- otu_table(family1dn, taxa_are_rows=TRUE)
+famfiltdn <- merge_phyloseq(famfiltdn, sampledata)
+sample_data(famfiltdn)$DPvNS <- factor(sample_data(famfiltdn)$DPvNS)
+sample_data(famfiltdn)$Individual_animal <- factor(sample_data(famfiltdn)$Individual_animal)
+sample_data(famfiltdn)$DPvNS <- relevel(sample_data(famfiltdn)$DPvNS, "0")
+famfiltdnDESEQ <- phyloseq_to_deseq2(famfiltdn, ~Individual_animal + DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(famfiltdnDESEQ), 1, gm_mean)
+famfiltdnDESEQg = estimateSizeFactors(famfiltdnDESEQ, geoMeans = geoMeans)
+famfiltdnDESEQg = DESeq(famfiltdnDESEQg, fitType="local", betaPrior = FALSE)
+famfiltdnresultsG <- results(famfiltdnDESEQg, contrast=c("DPvNS", "1", "0"))
+resdn7 = famfiltdnresultsG
+resdn7 = resdn7[order(resdn7$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdn11 = resdn7[(resdn7$padj < alpha), ]
+sigtabdn12 = resdn7[(resdn7$pvalue < alpha), ]
+sigtabdn11
+sigtabdn12
+
+##### OTU LEVEL #####
+## NON-FILTERED
+otunofiltdn <- otu_table(otu2.dn, taxa_are_rows=TRUE)
+otunofiltdn <- merge_phyloseq(otunofiltdn, sampledata)
+sample_data(otunofiltdn)$DPvNS <- factor(sample_data(otunofiltdn)$DPvNS)
+sample_data(otunofiltdn)$Individual_animal <- factor(sample_data(otunofiltdn)$Individual_animal)
+sample_data(otunofiltdn)$DPvNS <- relevel(sample_data(otunofiltdn)$DPvNS, "0")
+otunofiltdnDESEQ <- phyloseq_to_deseq2(otunofiltdn, ~Individual_animal + DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(otunofiltdnDESEQ), 1, gm_mean) 
+otunofiltdnDESEQg = estimateSizeFactors(otunofiltdnDESEQ, geoMeans = geoMeans)
+otunofiltdnDESEQg = DESeq(otunofiltdnDESEQg, fitType="local", betaPrior = FALSE)
+otunofiltdnresultsG <- results(otunofiltdnDESEQg, contrast=c("DPvNS", "1", "0"))
+resdn8 = otunofiltdnresultsG
+resdn8 = resdn8[order(resdn8$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdn13 = resdn8[(resdn8$padj < alpha), ]
+sigtabdn14 = resdn8[(resdn8$pvalue < alpha), ]
+sigtabdn13
+sigtabdn14
+
+## FILTERED
+otufiltdn <- otu_table(otu1.dn, taxa_are_rows=TRUE)
+otufiltdn <- merge_phyloseq(otufiltdn, sampledata)
+sample_data(otufiltdn)$DPvNS <- factor(sample_data(otufiltdn)$DPvNS)
+sample_data(otufiltdn)$Individual_animal <- factor(sample_data(otufiltdn)$Individual_animal)
+sample_data(otufiltdn)$DPvNS <- relevel(sample_data(otufiltdn)$DPvNS, "0")
+otufiltdnDESEQ <- phyloseq_to_deseq2(otufiltdn, ~Individual_animal + DPvNS - 1)
+# now with geomeans first
+geoMeans = apply(counts(otufiltdnDESEQ), 1, gm_mean)
+otufiltdnDESEQg = estimateSizeFactors(otufiltdnDESEQ, geoMeans = geoMeans)
+otufiltdnDESEQg = DESeq(otufiltdnDESEQg, fitType="local", betaPrior = FALSE)
+otufiltdnresultsG <- results(otufiltdnDESEQg, contrast=c("DPvNS", "1", "0"))
+resdn9 = otufiltdnresultsG
+resdn9 = resdn9[order(resdn9$padj, na.last=NA), ]
+alpha = 0.2
+sigtabdn15 = resdn9[(resdn9$padj < alpha), ]
+sigtabdn16 = resdn9[(resdn9$pvalue < alpha), ]
+sigtabdn15
+sigtabdn16
 
