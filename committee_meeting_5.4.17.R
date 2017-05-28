@@ -97,3 +97,57 @@ dp.fam = aggTax(MRexp_dpvsnsSubset,lvl="Rank5", norm = TRUE)
 dp.class = aggTax(MRexp_dpvsnsSubset, lvl="Rank3", norm = TRUE)
 dp.ord = aggTax(MRexp_dpvsnsSubset, lvl="Rank4", norm = TRUE)
 tp.df = pData(MRexp_dpvsnsSubset)
+
+dim(dp.gen) # features = 590
+dim(dp.spp) # features = 195
+dim(dp.fam) # features = 290
+dim(dp.class) # features = 111
+dim(dp.ord) # features = 191
+
+dp.genfilt = filterData(dp.gen, present = 12, depth = 1)
+DPvNS_new <- factor(tp.df$DPvNS) #makes it a factor
+dp.genfiltnorm = cumNorm(dp.genfilt, p = cumNormStatFast(dp.genfilt))
+trymod <- model.matrix(~ DPvNS_new - 1, tp.df) # makes actual contrasts for pathotype
+dp.genfit = fitZig(dp.genfiltnorm, trymod)
+View(MRcoefs(dp.genfit))
+View(MRtable(dp.genfit))
+zigFitgendp = dp.genfit$fit
+finalMod = dp.genfit$fit$design
+contrast.matrix = makeContrasts(DPvNS_new1-DPvNS_new0, levels = finalMod)
+fit2 = contrasts.fit(zigFitgendp, contrast.matrix)
+fit2 # gives you all sorts of info, p vals assoc for each contrast, stddev, sigmas, residuals, coeffs
+fit2 = eBayes(fit2) # looking at the error of the residuals here
+topTable(fit2)
+View(topTable(fit2))
+
+dp.famfilt = filterData(dp.fam, present = 12, depth = 1)
+DPvNS_new <- factor(tp.df$DPvNS) #makes it a factor
+dp.famfiltnorm = cumNorm(dp.famfilt, p = cumNormStatFast(dp.famfilt))
+trymod <- model.matrix(~ DPvNS_new - 1, tp.df) # makes actual contrasts for pathotype
+dp.famfit = fitZig(dp.famfiltnorm, trymod)
+View(MRcoefs(dp.famfit))
+View(MRtable(dp.famfit))
+zigFitfamdp = dp.famfit$fit
+finalMod = dp.famfit$fit$design
+contrast.matrix = makeContrasts(DPvNS_new1-DPvNS_new0, levels = finalMod)
+fit3 = contrasts.fit(zigFitfamdp, contrast.matrix)
+fit3 # gives you all sorts of info, p vals assoc for each contrast, stddev, sigmas, residuals, coeffs
+fit3 = eBayes(fit3) # looking at the error of the residuals here
+topTable(fit3)
+View(topTable(fit3))
+
+dp.sppfilt = filterData(dp.spp, present = 12, depth = 1)
+DPvNS_new <- factor(tp.df$DPvNS) #makes it a factor
+dp.sppfiltnorm = cumNorm(dp.sppfilt, p = cumNormStatFast(dp.sppfilt))
+trymod <- model.matrix(~ DPvNS_new - 1, tp.df) # makes actual contrasts for pathotype
+dp.sppfit = fitZig(dp.sppfiltnorm, trymod)
+View(MRcoefs(dp.sppfit))
+View(MRtable(dp.sppfit))
+zigFitsppdp = dp.sppfit$fit
+finalMod = dp.sppfit$fit$design
+contrast.matrix = makeContrasts(DPvNS_new1-DPvNS_new0, levels = finalMod)
+fit4 = contrasts.fit(zigFitsppdp, contrast.matrix)
+fit4 # gives you all sorts of info, p vals assoc for each contrast, stddev, sigmas, residuals, coeffs
+fit4 = eBayes(fit4) # looking at the error of the residuals here
+topTable(fit4)
+View(topTable(fit4))
