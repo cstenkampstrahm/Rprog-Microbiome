@@ -99,8 +99,6 @@ DODAspeciesphylo <- otu_table(DODAspecies1, taxa_are_rows=TRUE)
 DODAspeciesfilt <- merge_phyloseq(DODAspeciesphylo, sampledata)
 
 # prune samples to DP1, DO2, DO3, DA4 in phyloseq
-
-
 DP1 <- c("18D", "1C", "30C", "45C", "48A", "50D", "58B", "63D", "64D",
          "6C", "74B", "8B", "8D")
 DO2 <- c("18E", "1D", "30D", "45D", "48B", "50E", "58C", "63E", "64E", 
@@ -124,8 +122,44 @@ DA4famphylo <- prune_samples(DA4, DODAfamilyfilt)
 DA4sppphylo <- prune_samples(DA4, DODAspeciesfilt)
 DA4genphylo <- prune_samples(DA4, DODAgenusfilt)
 
+#### FAMILY DPDO ####
+# pull out OTU table, make sure order matches bw DP and DO
+DP1fam <- otu_table(DP1famphylo, taxa_are_rows = TRUE)
+DP1fam <- DP1fam[,c("30C", "6C", "63D", "45C", "58B", "50D", "48A", "8B", 
+                   "1C", "64D", "74B", "18D", "8D")]
+DO2fam <- otu_table(DO2famphylo, taxa_are_rows = TRUE)
+DP1fam
+DO2fam
+
+# wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
+wilcox.test(DP1fam, DO2fam, paired = TRUE, mu = 0) # pvalue = 0.2057
+DPDOfampvals <- sapply(1:nrow(DP1fam), function(i){
+  wilcox.test(as.numeric(DP1fam[i,]), as.numeric(DO2fam[i,]), 
+              paired = TRUE, mu = 0, exact = FALSE)$p.value
+}) 
+DPDOfampvals <- as.data.frame(DPDOfampvals, row.names=row.names(DP1fam))
+pval <- DPDOfampvals[(DPDOfampvals$DPDOfampvals<0.1),]
+rownames <- rownames(DPDOfampvals)[DPDOfampvals<0.1]
+DPDOfamresults <- data.frame(pval, row.names = rownames)
+DPDOfamresults
 
 
 
 
 
+
+
+otu_table(DP1genphylo)
+otu_table(DP1sppphylo)
+
+otu_table(DO2genphylo)
+otu_table(DO2sppphylo)
+
+
+otu_table(DO3genphylo)
+otu_table(DO3sppphylo)
+otu_table(DO3famphylo)
+
+otu_table(DA4genphylo)
+otu_table(DA4sppphylo)
+otu_table(DA4famphylo)
