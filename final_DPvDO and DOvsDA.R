@@ -40,7 +40,7 @@ familyphylo <- merge_phyloseq(familyphylo, sampledata)
 # prune phyloseq experiments to have DPDO and DODA data
 DPDO <- c("18D", "18E", "1C", "1D", "30C", "30D", "45C", "45D", "48A",
           "48B", "50D", "50E", "58B", "58C", "63D", "63E", "64D", "64E",
-          "6C", "6D", "74B", "74C", "8B", "8C", "8D", "8E")
+          "6C", "6D", "74B", "74C", "8B", "8C")
 DODA <- c("10C", "10D", "30D", "30E", "38A", "38B", "45D", "45E", "57B",
           "57C", "58C", "58D", "67A", "67B", "6D", "6E", "74C", "74D", 
           "8C", "8D")
@@ -103,9 +103,9 @@ DODAspeciesfilt <- merge_phyloseq(DODAspeciesphylo, sampledata)
 
 # prune samples to DP1, DO2, DO3, DA4 in phyloseq
 DP1 <- c("18D", "1C", "30C", "45C", "48A", "50D", "58B", "63D", "64D",
-         "6C", "74B", "8B", "8D")
+         "6C", "74B", "8B")
 DO2 <- c("18E", "1D", "30D", "45D", "48B", "50E", "58C", "63E", "64E", 
-         "6D", "74C", "8C", "8E")
+         "6D", "74C", "8C")
 DO3 <- c("10C", "30D", "38A", "45D", "57B", "58C", "67A", "6D", "74C", "8C")
 DA4 <- c("10D", "30E", "38B", "45E", "57C", "58D", "67B", "6E", "74D", "8D")
 
@@ -130,14 +130,14 @@ DA4genphylo <- prune_samples(DA4, DODAgenusfilt)
 # pull out OTU table, make sure order matches bw DP and DO
 DP1fam <- otu_table(DP1famphylo, taxa_are_rows = TRUE)
 DP1fam <- DP1fam[,c("30C", "6C", "63D", "45C", "58B", "50D", "48A", "8B", 
-                   "1C", "64D", "74B", "18D", "8D")]
+                   "1C", "64D", "74B", "18D")]
 DO2fam <- otu_table(DO2famphylo, taxa_are_rows = TRUE)
-DP1fam
-DO2fam
+head(DP1fam)
+head(DO2fam)
 
 # wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
 wilcox.test(DP1fam, DO2fam, paired = TRUE, mu = 0) 
-# pvalue = 0.0003469
+# pvalue = 1.97e-8
 DPDOfampvals <- sapply(1:nrow(DP1fam), function(i){
   wilcox.test(as.numeric(DP1fam[i,]), as.numeric(DO2fam[i,]), 
               paired = TRUE, mu = 0, exact = FALSE)$p.value
@@ -148,27 +148,33 @@ rownames <- rownames(DPDOfampvals)[DPDOfampvals<0.1]
 DPDOfamresults <- data.frame(pval, row.names = rownames)
 DPDOfamresults
 #pval
-#f__Methanobacteriaceae 0.09349248
+#f__[Mogibacteriaceae]  0.09168053
+#f__Desulfovibrionaceae 0.05191296
+#f__Methanobacteriaceae 0.04545875
+#f__Pirellulaceae       0.02249427
 
 
 ####FDR CORRECTION####
 DPDOfamresults <- mutate(DPDOfamresults, "padj" = p.adjust(DPDOfamresults$pval, 
-                                                           method = "fdr", n = 13))
+                                                           method = "fdr", n = 12))
 DPDOfamresults
-#pval padj
-#1 0.09349248    1
+#pval      padj
+#1 0.09168053 0.2750416
+#2 0.05191296 0.2076519
+#3 0.04545875 0.2076519
+#4 0.02249427 0.2076519
 
 
 #### GENUS DPDO ####
 DP1gen <- otu_table(DP1genphylo, taxa_are_rows = TRUE)
 DP1gen <- DP1gen[,c("30C", "6C", "63D", "45C", "58B", "50D", "48A", "8B", 
-                    "1C", "64D", "74B", "18D", "8D")]
+                    "1C", "64D", "74B", "18D")]
 DO2gen <- otu_table(DO2genphylo, taxa_are_rows = TRUE)
-DP1gen
-DO2gen
+head(DP1gen)
+head(DO2gen)
 # wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
 wilcox.test(DP1gen, DO2gen, paired = TRUE, mu = 0) 
-# pvalue = 0.5814
+# pvalue = 0.2597
 DPDOgenpvals <- sapply(1:nrow(DP1gen), function(i){
   wilcox.test(as.numeric(DP1gen[i,]), as.numeric(DO2gen[i,]), 
               paired = TRUE, mu = 0, exact = FALSE)$p.value
@@ -179,33 +185,33 @@ rownames <- rownames(DPDOgenpvals)[DPDOgenpvals<0.1]
 DPDOgenresults <- data.frame(pval, row.names = rownames)
 DPDOgenresults
 #pval
-#g__Atopobium      0.07556057
-#g__Bacteroides    0.06921297
-#g__Bulleidia      0.03763288
-#g__Methanosphaera 0.09349248
+#g__Anaeroplasma  0.06525726
+#g__Bulleidia     0.04544695
+#g__Butyrivibrio  0.07755617
+#g__Paenibacillus 0.06654572
 
 ####FDR CORRECTION####
 DPDOgenresults <- mutate(DPDOgenresults, "padj" = p.adjust(DPDOgenresults$pval, 
-                                                           method = "fdr", n = 13))
+                                                           method = "fdr", n = 12))
 DPDOgenresults
 #pval      padj
-#1 0.07556057 0.3038506
-#2 0.06921297 0.3038506
-#3 0.03763288 0.3038506
-#4 0.09349248 0.3038506
+#1 0.06525726 0.2326685
+#2 0.04544695 0.2326685
+#3 0.07755617 0.2326685
+#4 0.06654572 0.2326685
 
 
 
 #### SPECIES DPDO ####
 DP1spp <- otu_table(DP1sppphylo, taxa_are_rows = TRUE)
 DP1spp <- DP1spp[,c("30C", "6C", "63D", "45C", "58B", "50D", "48A", "8B", 
-                    "1C", "64D", "74B", "18D", "8D")]
+                    "1C", "64D", "74B", "18D")]
 DO2spp <- otu_table(DO2sppphylo, taxa_are_rows = TRUE)
-DP1spp
-DO2spp
+head(DP1spp)
+head(DO2spp)
 # wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
 wilcox.test(DP1spp, DO2spp, paired = TRUE, mu = 0) 
-# pvalue = 0.6275
+# pvalue = 0.4859
 DPDOspppvals <- sapply(1:nrow(DP1spp), function(i){
   wilcox.test(as.numeric(DP1spp[i,]), as.numeric(DO2spp[i,]), 
               paired = TRUE, mu = 0, exact = FALSE)$p.value
@@ -224,8 +230,8 @@ DO3spp <- otu_table(DO3sppphylo, taxa_are_rows = TRUE)
 DO3spp <- DO3spp[,c("10C", "30D", "74C", "8C", "38A", "67A", "58C", "45D", 
                     "57B", "6D")]
 DA4spp <- otu_table(DA4sppphylo, taxa_are_rows = TRUE)
-DO3spp
-DA4spp
+head(DO3spp)
+head(DA4spp)
 # wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
 wilcox.test(DO3spp, DA4spp, paired = TRUE, mu = 0) 
 # pvalue = 0.9098
@@ -246,8 +252,8 @@ DO3gen <- otu_table(DO3genphylo, taxa_are_rows = TRUE)
 DO3gen <- DO3gen[,c("10C", "30D", "74C", "8C", "38A", "67A", "58C", "45D", 
                     "57B", "6D")]
 DA4gen <- otu_table(DA4genphylo, taxa_are_rows = TRUE)
-DO3gen
-DA4gen
+head(DO3gen)
+head(DA4gen)
 # wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
 wilcox.test(DO3gen, DA4gen, paired = TRUE, mu = 0) 
 # pvalue = 0.07743
@@ -276,8 +282,8 @@ DO3fam <- otu_table(DO3famphylo, taxa_are_rows = TRUE)
 DO3fam <- DO3fam[,c("10C", "30D", "74C", "8C", "38A", "67A", "58C", "45D", 
                     "57B", "6D")]
 DA4fam <- otu_table(DA4famphylo, taxa_are_rows = TRUE)
-DO3fam
-DA4fam
+head(DO3fam)
+head(DA4fam)
 # wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
 wilcox.test(DO3fam, DA4fam, paired = TRUE, mu = 0) 
 # pvalue = 0.004145

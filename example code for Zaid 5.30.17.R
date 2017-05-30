@@ -1,3 +1,5 @@
+library(tidyverse)
+library(phyloseq)
 load("Phyloseq files/Cowonly")
 Cowonly
 library(metagenomeSeq)
@@ -60,7 +62,7 @@ genusphylo <- otu_table(genus1, taxa_are_rows=TRUE)
 genusphylo <- merge_phyloseq(genusphylo, sampledata)
 DPDO <- c("18D", "18E", "1C", "1D", "30C", "30D", "45C", "45D", "48A",
           "48B", "50D", "50E", "58B", "58C", "63D", "63E", "64D", "64E",
-          "6C", "6D", "74B", "74C", "8B", "8C", "8D", "8E")
+          "6C", "6D", "74B", "74C", "8B", "8C")
 DPDOgenphylo <- prune_samples(DPDO, genusphylo)
 MR_DPDOgenphylo <- phyloseq_to_metagenomeSeq(DPDOgenphylo)
 MR_DPDOgenphylofilt = filterData(MR_DPDOgenphylo, present = 8, depth = 1)
@@ -68,21 +70,20 @@ DPDOgenus1 <- MRcounts(MR_DPDOgenphylofilt, norm = TRUE)
 DPDOgenusphylo <- otu_table(DPDOgenus1, taxa_are_rows=TRUE)
 DPDOgenusfilt <- merge_phyloseq(DPDOgenusphylo, sampledata)
 DP1 <- c("18D", "1C", "30C", "45C", "48A", "50D", "58B", "63D", "64D",
-         "6C", "74B", "8B", "8D")
+         "6C", "74B", "8B")
 DO2 <- c("18E", "1D", "30D", "45D", "48B", "50E", "58C", "63E", "64E", 
-         "6D", "74C", "8C", "8E")
+         "6D", "74C", "8C")
 DP1genphylo <- prune_samples(DP1, DPDOgenusfilt)
 DO2genphylo <- prune_samples(DO2, DPDOgenusfilt)
-#### GENUS DPDO ####
+#### GENUS DPDO #### Must make sure matrices line up by sample so x-y subtraction during
+# wilcox.test is correct
 DP1gen <- otu_table(DP1genphylo, taxa_are_rows = TRUE)
 DP1gen <- DP1gen[,c("30C", "6C", "63D", "45C", "58B", "50D", "48A", "8B", 
-                    "1C", "64D", "74B", "18D", "8D")]
+                    "1C", "64D", "74B", "18D")]
 DO2gen <- otu_table(DO2genphylo, taxa_are_rows = TRUE)
-DP1gen
-DO2gen
-# wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
-wilcox.test(DP1gen, DO2gen, paired = TRUE, mu = 0) 
-# pvalue = 0.5814
+head(DP1gen)
+head(DO2gen)
+#  wilcox test giving p values by row and pulling out <0.1
 DPDOgenpvals <- sapply(1:nrow(DP1gen), function(i){
   wilcox.test(as.numeric(DP1gen[i,]), as.numeric(DO2gen[i,]), 
               paired = TRUE, mu = 0, exact = FALSE)$p.value
@@ -93,19 +94,19 @@ rownames <- rownames(DPDOgenpvals)[DPDOgenpvals<0.1]
 DPDOgenresults <- data.frame(pval, row.names = rownames)
 DPDOgenresults
 #pval
-#g__Atopobium      0.07556057
-#g__Bacteroides    0.06921297
-#g__Bulleidia      0.03763288
-#g__Methanosphaera 0.09349248
+#g__Anaeroplasma  0.06525726
+#g__Bulleidia     0.04544695
+#g__Butyrivibrio  0.07755617
+#g__Paenibacillus 0.06654572
 
 ####FDR CORRECTION####
 DPDOgenresults <- mutate(DPDOgenresults, "padj" = p.adjust(DPDOgenresults$pval, 
-                                                           method = "fdr", n = 13))
+                                                           method = "fdr", n = 12))
 DPDOgenresults
 #pval      padj
-#1 0.07556057 0.3038506
-#2 0.06921297 0.3038506
-#3 0.03763288 0.3038506
-#4 0.09349248 0.3038506
+#1 0.06525726 0.2326685
+#2 0.04544695 0.2326685
+#3 0.07755617 0.2326685
+#4 0.06654572 0.2326685
 
 
