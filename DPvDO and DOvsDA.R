@@ -8,6 +8,7 @@
 # for DODA n = 10 for each group, n = 20 total. WIll filter to present in 6 (30%) samples
 # then put in phyloseq de novo and prune to DP1, DO2, DO3, DA4 data sets. These matrices
 # can then be used for wilcox.test in stats package
+library(tidyverse)
 library(phyloseq)
 load("Phyloseq files/Cowonly")
 Cowonly
@@ -122,6 +123,7 @@ DA4famphylo <- prune_samples(DA4, DODAfamilyfilt)
 DA4sppphylo <- prune_samples(DA4, DODAspeciesfilt)
 DA4genphylo <- prune_samples(DA4, DODAgenusfilt)
 
+##############WILCOX TESTING##################################################
 #### FAMILY DPDO ####
 # pull out OTU table, make sure order matches bw DP and DO
 DP1fam <- otu_table(DP1famphylo, taxa_are_rows = TRUE)
@@ -132,7 +134,8 @@ DP1fam
 DO2fam
 
 # wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
-wilcox.test(DP1fam, DO2fam, paired = TRUE, mu = 0) # pvalue = 0.2057
+wilcox.test(DP1fam, DO2fam, paired = TRUE, mu = 0) 
+# pvalue = 0.2057
 DPDOfampvals <- sapply(1:nrow(DP1fam), function(i){
   wilcox.test(as.numeric(DP1fam[i,]), as.numeric(DO2fam[i,]), 
               paired = TRUE, mu = 0, exact = FALSE)$p.value
@@ -143,23 +146,181 @@ rownames <- rownames(DPDOfampvals)[DPDOfampvals<0.1]
 DPDOfamresults <- data.frame(pval, row.names = rownames)
 DPDOfamresults
 
+#pval
+#f__Bacteroidaceae 0.05917207
+#f__p-2534-18B5    0.07427355
+#f__Pirellulaceae  0.04941162
+#f__Rikenellaceae  0.08061281
+
+####FDR CORRECTION####
+DPDOfamresults <- mutate(DPDOfamresults, "padj" = p.adjust(DPDOfamresults$pval, 
+                                                           method = "fdr", n = 13))
+DPDOfamresults
+#pval      padj
+#1 0.05917207 0.2619916
+#2 0.07427355 0.2619916
+#3 0.04941162 0.2619916
+#4 0.08061281 0.2619916
+
+
+#### GENUS DPDO ####
+DP1gen <- otu_table(DP1genphylo, taxa_are_rows = TRUE)
+DP1gen <- DP1gen[,c("30C", "6C", "63D", "45C", "58B", "50D", "48A", "8B", 
+                    "1C", "64D", "74B", "18D", "8D")]
+DO2gen <- otu_table(DO2genphylo, taxa_are_rows = TRUE)
+DP1gen
+DO2gen
+# wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
+wilcox.test(DP1gen, DO2gen, paired = TRUE, mu = 0) 
+# pvalue = 0.431
+DPDOgenpvals <- sapply(1:nrow(DP1gen), function(i){
+  wilcox.test(as.numeric(DP1gen[i,]), as.numeric(DO2gen[i,]), 
+              paired = TRUE, mu = 0, exact = FALSE)$p.value
+}) 
+DPDOgenpvals <- as.data.frame(DPDOgenpvals, row.names=row.names(DP1gen))
+pval <- DPDOgenpvals[(DPDOgenpvals$DPDOgenpvals<0.1),]
+rownames <- rownames(DPDOgenpvals)[DPDOgenpvals<0.1]
+DPDOgenresults <- data.frame(pval, row.names = rownames)
+DPDOgenresults
+#pval
+#g__Atopobium      0.05643751
+#g__Bacteroides    0.03091946
+#g__Bulleidia      0.01445002
+#g__CF231          0.06921297
+#g__Methanosphaera 0.07652963
+#g__Paenibacillus  0.07915987
+####FDR CORRECTION####
+DPDOgenresults <- mutate(DPDOgenresults, "padj" = p.adjust(DPDOgenresults$pval, 
+                                                           method = "fdr", n = 13))
+DPDOgenresults
+#pval      padj
+#1 0.05643751 0.1715131
+#2 0.03091946 0.1715131
+#3 0.01445002 0.1715131
+#4 0.06921297 0.1715131
+#5 0.07652963 0.1715131
+#6 0.07915987 0.1715131
 
 
 
+#### SPECIES DPDO ####
+DP1spp <- otu_table(DP1sppphylo, taxa_are_rows = TRUE)
+DP1spp <- DP1spp[,c("30C", "6C", "63D", "45C", "58B", "50D", "48A", "8B", 
+                    "1C", "64D", "74B", "18D", "8D")]
+DO2spp <- otu_table(DO2sppphylo, taxa_are_rows = TRUE)
+DP1spp
+DO2spp
+# wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
+wilcox.test(DP1spp, DO2spp, paired = TRUE, mu = 0) 
+# pvalue = 0.6093
+DPDOspppvals <- sapply(1:nrow(DP1spp), function(i){
+  wilcox.test(as.numeric(DP1spp[i,]), as.numeric(DO2spp[i,]), 
+              paired = TRUE, mu = 0, exact = FALSE)$p.value
+}) 
+DPDOspppvals <- as.data.frame(DPDOspppvals, row.names=row.names(DP1spp))
+pval <- DPDOspppvals[(DPDOspppvals$DPDOspppvals<0.1),]
+rownames <- rownames(DPDOspppvals)[DPDOspppvals<0.1]
+DPDOsppresults <- data.frame(pval, row.names = rownames)
+DPDOsppresults
+#pval
+#<0 rows> (or 0-length row.names)
 
 
+### SPECIES DODA ###
+DO3spp <- otu_table(DO3sppphylo, taxa_are_rows = TRUE)
+DO3spp <- DO3spp[,c("10C", "30D", "74C", "8C", "38A", "67A", "58C", "45D", 
+                    "57B", "6D")]
+DA4spp <- otu_table(DA4sppphylo, taxa_are_rows = TRUE)
+DO3spp
+DA4spp
+# wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
+wilcox.test(DO3spp, DA4spp, paired = TRUE, mu = 0) 
+# pvalue = 0.07883
+DODAspppvals <- sapply(1:nrow(DO3spp), function(i){
+  wilcox.test(as.numeric(DO3spp[i,]), as.numeric(DA4spp[i,]), 
+              paired = TRUE, mu = 0, exact = FALSE)$p.value
+}) 
+DODAspppvals <- as.data.frame(DODAspppvals, row.names=row.names(DO3spp))
+pval <- DODAspppvals[(DODAspppvals$DODAspppvals<0.1),]
+rownames <- rownames(DODAspppvals)[DODAspppvals<0.1]
+DODAsppresults <- data.frame(pval, row.names = rownames)
+DODAsppresults
+#[1] pval
+#<0 rows> (or 0-length row.names)
 
-otu_table(DP1genphylo)
-otu_table(DP1sppphylo)
+### GENUS DODA ###
+DO3gen <- otu_table(DO3genphylo, taxa_are_rows = TRUE)
+DO3gen <- DO3gen[,c("10C", "30D", "74C", "8C", "38A", "67A", "58C", "45D", 
+                    "57B", "6D")]
+DA4gen <- otu_table(DA4genphylo, taxa_are_rows = TRUE)
+DO3gen
+DA4gen
+# wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
+wilcox.test(DO3gen, DA4gen, paired = TRUE, mu = 0) 
+# pvalue = 0.0005443
+DODAgenpvals <- sapply(1:nrow(DO3gen), function(i){
+  wilcox.test(as.numeric(DO3gen[i,]), as.numeric(DA4gen[i,]), 
+              paired = TRUE, mu = 0, exact = FALSE)$p.value
+}) 
+DODAgenpvals <- as.data.frame(DODAgenpvals, row.names=row.names(DO3gen))
+pval <- DODAgenpvals[(DODAgenpvals$DODAgenpvals<0.1),]
+rownames <- rownames(DODAgenpvals)[DODAgenpvals<0.1]
+DODAgenresults <- data.frame(pval, row.names = rownames)
+DODAgenresults
+#pval
+#g__Anaerofustis    0.08988652
+#g__Bacteroides     0.07389706
+#g__Clostridium     0.06654572
+#g__Coprococcus     0.03220076
+#g__Corynebacterium 0.02201493
+#g__Prevotella      0.06654572
+DODAgenresults <- mutate(DODAgenresults, "padj" = p.adjust(DODAgenresults$pval, 
+                                                           method = "fdr", n = 10))
+DODAgenresults
+#pval      padj
+#1 0.08988652 0.1498109
+#2 0.07389706 0.1477941
+#3 0.06654572 0.1477941
+#4 0.03220076 0.1477941
+#5 0.02201493 0.1477941
+#6 0.06654572 0.1477941
 
-otu_table(DO2genphylo)
-otu_table(DO2sppphylo)
 
-
-otu_table(DO3genphylo)
-otu_table(DO3sppphylo)
-otu_table(DO3famphylo)
-
-otu_table(DA4genphylo)
-otu_table(DA4sppphylo)
-otu_table(DA4famphylo)
+### FAMILY DODA ###
+DO3fam <- otu_table(DO3famphylo, taxa_are_rows = TRUE)
+DO3fam <- DO3fam[,c("10C", "30D", "74C", "8C", "38A", "67A", "58C", "45D", 
+                    "57B", "6D")]
+DA4fam <- otu_table(DA4famphylo, taxa_are_rows = TRUE)
+DO3fam
+DA4fam
+# wilcox test overall, then wilcox test giving p values by row and pulling out <0.1
+wilcox.test(DO3fam, DA4fam, paired = TRUE, mu = 0) 
+# pvalue = 0.0001183
+DODAfampvals <- sapply(1:nrow(DO3fam), function(i){
+  wilcox.test(as.numeric(DO3fam[i,]), as.numeric(DA4fam[i,]), 
+              paired = TRUE, mu = 0, exact = FALSE)$p.value
+}) 
+DODAfampvals <- as.data.frame(DODAfampvals, row.names=row.names(DO3fam))
+pval <- DODAfampvals[(DODAfampvals$DODAfampvals<0.1),]
+rownames <- rownames(DODAfampvals)[DODAfampvals<0.1]
+DODAfamresults <- data.frame(pval, row.names = rownames)
+DODAfamresults
+#pval
+#f__Corynebacteriaceae 0.02201493
+#f__Lachnospiraceae    0.05278700
+#f__p-2534-18B5        0.05780401
+#f__Pirellulaceae      0.08897301
+#f__Prevotellaceae     0.06654572
+#f__S24-7              0.08313114
+#f__Veillonellaceae    0.02493246
+DODAfamresults <- mutate(DODAfamresults, "padj" = p.adjust(DODAfamresults$pval, 
+                                                           method = "fdr", n = 10))
+DODAfamresults
+#pval      padj
+#1 0.02201493 0.1246623
+#2 0.05278700 0.1271043
+#3 0.05780401 0.1271043
+#4 0.08897301 0.1271043
+#5 0.06654572 0.1271043
+#6 0.08313114 0.1271043
+#7 0.02493246 0.1246623
