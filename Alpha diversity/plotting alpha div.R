@@ -5,6 +5,7 @@ alpha_div <- read.xlsx("excel sheets/Cow_map_wrichnshansnevennormednscaled.xlsx"
 library(ggplot2)
 library(tidyverse)
 
+######## Old code, skip down for newer code for box and whisker per Sheryl recomm.######
 #Richness
 path_richness <- alpha_div %>% group_by(Pathotype_1) %>%
   summarise(pathrichavg = mean(Normrich), pathrichsd = sd(Normrich),
@@ -89,7 +90,6 @@ patternsummary <- alpha_div %>% group_by(Farm, Individual_animal) %>%
 
 pathotypesummary <- alpha_div %>% group_by(Farm, Day) %>%
   summarise(Pathotype_1 = sum(Pathotype_1), n = n())
-
 ### double check the values
 dgaf <- alpha_div %>% select(Farm, Day, Pathotype_1) %>% group_by(Farm, Day)  
 
@@ -172,14 +172,24 @@ evnev_even <- table_2 %>% group_by(EvNev_1) %>%
             pattnval = n()) %>%
   ungroup()
 # placed values into excel sheet
+## still trying to change the order of the third facet- pattern- to be
+## Never shed, intermittent, multi day rather than intermittent, multi-day, never shed
+## (this would make each facet uniform with never shedding being first)
 
 table_3 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 7)
 
 ggplot(aes(y = median, x = Level, color= Alphadiv), data = table_3) +
   facet_grid(Alphadiv ~ O157metric, scales = "free") +
   geom_boxplot(aes(ymin = ymin, ymax = ymax, middle = median, 
-                   lower = lower, upper = upper), stat = "identity") +
+                   lower = lower, upper = upper), stat = "identity", fill='#A4A4A4', color="black") +
   theme_classic() +
+  #reorder(Pattern, c("Never shed", "Intermittent", "Multi-day")) +
+  #reorder(Level, c("No O157", "O157", "Never shed", "Shed > 1 time", 
+  #                 "Never shed", "Intermittent", "Multi-day")) +
+  #scale_x_discrete(labels = table_3$Level) +
+  #scale_x_discrete(labels = c("No O157", "O157", "Never shed", "Shed > 1 time", 
+   #                                 "Never shed", "Intermittent", "Multi-day")) +
+  #reorder(table_3, O157metric$Pattern, c("Never shed", "Intermittent", "Multi-day")) +
   labs(y = "IQR of Alpha Diversity", x = "O157 Metric") +
   theme(legend.position = "none")
   
