@@ -20,15 +20,29 @@ MRexp_cowonly
 d.gen = aggTax(MRexp_cowonly,lvl="Rank6", norm = TRUE) 
 d.spp = aggTax(MRexp_cowonly,lvl="Rank7", norm = TRUE) 
 d.fam = aggTax(MRexp_cowonly,lvl="Rank5", norm = TRUE)
-d.class = aggTax(MRexp_cowonly, lvl="Rank3", norm = TRUE)
-d.ord = aggTax(MRexp_cowonly, lvl="Rank4", norm = TRUE)
 t.df = pData(MRexp_cowonly)
 
 dim(d.gen) # features = 590
 dim(d.spp) # features = 195
 dim(d.fam) # features = 290
-dim(d.class) # features = 111
-dim(d.ord) # features = 191
+
+d.otufilt = filterData(MRexp_cowonly, present = 50, depth = 1)
+dim(d.otufilt) # features = 3531
+Pathotype_new <- factor(t.df$Pathotype_1) #makes it a factor
+Individual_animalnew <- factor(t.df$Individual_animal)
+d.otufiltnorm = cumNorm(d.otufilt, p = cumNormStatFast(d.otufilt))
+trymod <- model.matrix(~ Pathotype_new + Individual_animalnew - 1, t.df) # makes actual contrasts for pathotype
+d.otufit = fitZig(d.otufiltnorm, trymod)
+View(MRcoefs(d.otufit))
+View(MRtable(d.otufit))
+zigFitotu = d.otufit$fit
+finalMod = d.otufit$fit$design
+contrast.matrix = makeContrasts(Pathotype_new0-Pathotype_new1, levels = finalMod)
+fit5 = contrasts.fit(zigFitotu, contrast.matrix)
+fit5 # gives you all sorts of info, p vals assoc for each contrast, stddev, sigmas, residuals, coeffs
+fit5 = eBayes(fit5) # looking at the error of the residuals here
+topTable(fit5)
+View(topTable(fit5))
 
 d.genfilt = filterData(d.gen, present = 50, depth = 1)
 Pathotype_new <- factor(t.df$Pathotype_1) #makes it a factor
@@ -44,8 +58,9 @@ contrast.matrix = makeContrasts(Pathotype_new0-Pathotype_new1, levels = finalMod
 fit2 = contrasts.fit(zigFitgen, contrast.matrix)
 fit2 # gives you all sorts of info, p vals assoc for each contrast, stddev, sigmas, residuals, coeffs
 fit2 = eBayes(fit2) # looking at the error of the residuals here
-topTable(fit2)
-View(topTable(fit2))
+topTable(fit2, confint = TRUE)
+View(topTable(fit2, confint = TRUE))
+
 
 
 d.famfilt = filterData(d.fam, present = 50, depth = 1)
@@ -62,8 +77,8 @@ contrast.matrix = makeContrasts(Pathotype_new0-Pathotype_new1, levels = finalMod
 fit3 = contrasts.fit(zigFitfam, contrast.matrix)
 fit3 # gives you all sorts of info, p vals assoc for each contrast, stddev, sigmas, residuals, coeffs
 fit3 = eBayes(fit3) # looking at the error of the residuals here
-topTable(fit3)
-View(topTable(fit3))
+topTable(fit3, confint = TRUE)
+View(topTable(fit3, confint = TRUE))
 
 d.sppfilt = filterData(d.spp, present = 50, depth = 1)
 Pathotype_new <- factor(t.df$Pathotype_1) #makes it a factor
@@ -79,8 +94,8 @@ contrast.matrix = makeContrasts(Pathotype_new0-Pathotype_new1, levels = finalMod
 fit4 = contrasts.fit(zigFitspp, contrast.matrix)
 fit4 # gives you all sorts of info, p vals assoc for each contrast, stddev, sigmas, residuals, coeffs
 fit4 = eBayes(fit4) # looking at the error of the residuals here
-topTable(fit4)
-View(topTable(fit4))
+topTable(fit4, confint = TRUE)
+View(topTable(fit4, confint = TRUE))
 
 
 ##### FROM final_deseq2.R
@@ -96,21 +111,23 @@ MRexp_cowonly
 d.gen1 = aggTax(MRexp_cowonly,lvl="Rank6", norm = FALSE)
 d.genfilt1 = filterData(d.gen1, present = 50, depth = 1)
 genus1 <- MRcounts(d.genfilt1)
-genus2 <- MRcounts(d.gen1)
+dim(genus1) # 79 (same as filtered w metagenomeseq fitzig)
 
 d.spp1 = aggTax(MRexp_cowonly,lvl="Rank7", norm = FALSE) 
 d.sppfilt1 = filterData(d.spp1, present = 50, depth = 1)
 spp1 <- MRcounts(d.sppfilt1)
-spp2 <- MRcounts(d.spp1)
+dim(spp1) # 17 (same as filtered w metagenomeseq fitzig)
+
 
 d.fam1 = aggTax(MRexp_cowonly,lvl="Rank5", norm = FALSE)
 d.famfilt1 = filterData(d.fam1, present = 50, depth = 1)
 family1 <- MRcounts(d.famfilt1)
-family2 <- MRcounts(d.fam1)
+dim(family1) # 68 (same as filtered w metagenomeseq fitzig)
 
 d.otu1 = filterData(MRexp_cowonly, present = 50, depth = 1)
 otu1 <- MRcounts(d.otu1)
-otu2 <- MRcounts(MRexp_cowonly)
+dim(otu1) # 3531 (same as filtered w metagenomeseq fitzig)
+
 
 #McMurdie's calculation of the geometric mean 
 

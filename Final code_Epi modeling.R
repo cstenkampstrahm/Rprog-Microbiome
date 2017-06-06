@@ -369,6 +369,49 @@ z
 p <- (1-pnorm(abs(z), 0, 1)) * 2  
 p 
 
+## to get more meaningful values, can calculate the IQR of diversity values 
+# (between 1st and 3rd quartile) and multiply the B coefficients by that:
+UQR_normrich <- IQR(alpha_div_scaled$Normrich)
+IQR_normrich  
+# 1255
+IQR_avgrich <- IQR(avg_alpha_div_scaled$Avgrich)
+IQR_avgrich 
+# 797.65
+IQR_normshann <- IQR(alpha_div_scaled$Normshann)
+IQR_normshann
+# 0.4804946
+IQR_avgshann <- IQR(avg_alpha_div_scaled$Avgshann)
+IQR_avgshann
+# 0.3716254
+IQR_normeven  <- IQR(alpha_div_scaled$Normeven)
+IQR_normeven
+# 0.0366165
+IQR_avgeven <- IQR(avg_alpha_div_scaled$Avgeven)
+IQR_avgeven
+# 0.03348146
 
+# the only model that is significant is one that looks for association between 
+# multiday shedder and richness. Look at spread of avgrich values to make sure 
+# no outliers:
+avgrichspread <- avg_alpha_div_scaled %>% group_by(Pattern_1) %>% summarize(mean(Avgrich), 
+                                                                            min(Avgrich), 
+                                                                            max(Avgrich))
+avgrichspread
+# # A tibble: 3 × 4
+#       Pattern_1 `mean(Avgrich)` `min(Avgrich)` `max(Avgrich)`
+#       <fctr>        <dbl>          <dbl>          <dbl>
+#1         0        4186.431         3359.8         5180.0
+#2         1        4252.625         2877.4         7644.4
+#3         2        3842.000         2440.0         5000.4
 
+# others
+avgshannspread <- avg_alpha_div_scaled %>% group_by(Pattern_1) %>% summarize(mean(Avgshann), 
+                                                                             min(Avgshann), 
+                                                                             max(Avgshann))
+avgshannspread
+
+avgevenspread <- avg_alpha_div_scaled %>% group_by(Pattern_1) %>% summarize(mean(Avgeven), 
+                                                                            min(Avgeven), 
+                                                                            max(Avgeven))
+avgevenspread
 
