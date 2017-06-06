@@ -202,14 +202,15 @@ titles <- c("Bacillus coagulans", "Blautia producta", "Clostridium neonatale",
 ggplot(table_4, aes(x=Title, y = LogFC, fill = level)) +
   geom_bar(stat= "identity", position = position_dodge(0.9)) +
   geom_errorbar(limits, position = position_dodge(0.9), width = 0.25) +
-  labs(x = "Taxa", y = "Log2 Fold Change from Non-O157 Sample") +
+  labs(y = "Log2 Fold Change from Non-O157 Sample") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 8, face = "italic")) +
   theme(legend.position = "none") +
+  theme(axis.title.x = element_blank()) +
   scale_x_discrete(limits = titles) +
   scale_fill_grey(start = 0.2, end = 0.9) +
-  annotate("text",x=1,y=0.75,label="p=0.09") +
-  annotate("text",x=4,y=-.75,label="p=0.04")
+  annotate("text",x=1,y=0.6,label="p=0.09") +
+  annotate("text",x=4,y=-.65,label="p=0.04")
              
 ## what are the family/genus/species full names??
 Cowonly
