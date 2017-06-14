@@ -194,6 +194,7 @@ ggplot(aes(y = median, x = Level, color= Alphadiv), data = table_3) +
   theme(legend.position = "none")
 
 ### Plotting for Differential Abundance results
+## METAGENOMESEQ
 table_4 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 8)
 limits <- aes(ymax = table_4$CI.R, ymin = table_4$CI.L)
 titles <- c("Bacillus coagulans", "Blautia producta", "Clostridium neonatale",
@@ -202,17 +203,35 @@ titles <- c("Bacillus coagulans", "Blautia producta", "Clostridium neonatale",
 ggplot(table_4, aes(x=Title, y = LogFC, fill = level)) +
   geom_bar(stat= "identity", position = position_dodge(0.9)) +
   geom_errorbar(limits, position = position_dodge(0.9), width = 0.25) +
-  labs(y = "Log2 Fold Change from Non-O157 Sample") +
+  labs(y = "Log2 Fold Change in a Non-O157 Sample") +
   theme_classic() +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 8, face = "italic")) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 12, face = "italic")) +
   theme(legend.position = "none") +
   theme(axis.title.x = element_blank()) +
   scale_x_discrete(limits = titles) +
   scale_fill_grey(start = 0.2, end = 0.9) +
   annotate("text",x=1,y=0.6,label="p=0.09") +
   annotate("text",x=4,y=-.65,label="p=0.04")
+
+##DESEQ2
+table_5 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 9)
+limits_1 <- aes(ymax = table_5$CI.R, ymin = table_5$CI.L)
+titles_1 <- c("Faecalibacterium prausnitzii", "Atopobium spp", "Corynebacterium spp",
+            "Family Acetobacteraceae", "Family Pirellulaceae")
+ggplot(table_5, aes(x=Title, y = LogFC, fill = level)) +
+  geom_bar(stat= "identity", position = position_dodge(0.9)) +
+  geom_errorbar(limits_1, position = position_dodge(0.9), width = 0.25) +
+  labs(y = "Log2 Fold Change in a Non-O157 Sample") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 12, face = "italic")) +
+  theme(legend.position = "none") +
+  theme(axis.title.x = element_blank()) +
+  scale_x_discrete(limits = titles_1) +
+  scale_fill_grey(start = 0.2, end = 0.9)
+ 
              
 ## what are the family/genus/species full names??
+## METAGENOMESEQ RESULTS
 Cowonly
 cowonlytaxa <- as.data.frame(tax_table(Cowonly))
 View(cowonlytaxa)
@@ -226,3 +245,11 @@ acetobacteraceae <- subset(cowonlytaxa, Rank5 %in% "f__Acetobacteraceae")
 corynebacteriaceae <- subset(cowonlytaxa, Rank5 %in% "f__Corynebacteriaceae")
 pirellulaceae <- subset(cowonlytaxa, Rank5 %in% "f__Pirellulaceae")
 
+## DESEQ2 RESULTS
+prausnitzii <- subset(cowonlytaxa, Rank7 %in% "s__prausnitzii")#all faecalibacterium like above!
+atopobium <- subset(cowonlytaxa, Rank6 %in% "g__Atopobium") # nothing to the species level
+corynebacterium <- subset(cowonlytaxa, Rank6 %in% "g__Corynebacterium") #many diff spp
+acetobacteraceae <- subset(cowonlytaxa, Rank5 %in% "f__Acetobacteraceae") #same as above for metagenomeseq
+BS11 <- subset(cowonlytaxa, Rank5 %in% "f__BS11") #new cleanup reference means found in the final OTU 
+# picking step when using open referencepicking
+pirellulaceae <- subset(cowonlytaxa, Rank5 %in% "f__Pirellulaceae") # same as above, different genuses in this

@@ -145,7 +145,8 @@ genusfiltDESEQ <- phyloseq_to_deseq2(genusfilt, ~Individual_animal + Pathotype_1
 geoMeans = apply(counts(genusfiltDESEQ), 1, gm_mean)
 genusfiltDESEQg = estimateSizeFactors(genusfiltDESEQ, geoMeans = geoMeans)
 genusfiltDESEQg = DESeq(genusfiltDESEQg, fitType="local", betaPrior = FALSE)
-genusfiltresultsG <- results(genusfiltDESEQg, contrast=c("Pathotype_1", "1", "0"))
+genusfiltresultsG <- results(genusfiltDESEQg, contrast=c("Pathotype_1", "0", "1")) 
+# this is going to give 0/1, so log2(NonO157/O157), positive would be higher in NonO157, negative lower in NonO157
 res5.1 = genusfiltresultsG
 res5.1 = res5.1[order(res5.1$padj, na.last=NA), ]
 alpha = 0.2
@@ -164,7 +165,7 @@ sppfiltDESEQ <- phyloseq_to_deseq2(sppfilt, ~Individual_animal + Pathotype_1 - 1
 geoMeans = apply(counts(sppfiltDESEQ), 1, gm_mean)
 sppfiltDESEQg = estimateSizeFactors(sppfiltDESEQ, geoMeans = geoMeans)
 sppfiltDESEQg = DESeq(sppfiltDESEQg, fitType="local", betaPrior = FALSE)
-sppfiltresultsG <- results(sppfiltDESEQg, contrast=c("Pathotype_1", "1", "0"))
+sppfiltresultsG <- results(sppfiltDESEQg, contrast=c("Pathotype_1", "0", "1"))
 res8.1 = sppfiltresultsG
 res8.1 = res8.1[order(res8.1$padj, na.last=NA), ]
 alpha = 0.2
@@ -183,7 +184,7 @@ famfiltDESEQ <- phyloseq_to_deseq2(famfilt, ~Individual_animal + Pathotype_1 - 1
 geoMeans = apply(counts(famfiltDESEQ), 1, gm_mean)
 famfiltDESEQg = estimateSizeFactors(famfiltDESEQ, geoMeans = geoMeans)
 famfiltDESEQg = DESeq(famfiltDESEQg, fitType="local", betaPrior = FALSE)
-famfiltresultsG <- results(famfiltDESEQg, contrast=c("Pathotype_1", "1", "0"))
+famfiltresultsG <- results(famfiltDESEQg, contrast=c("Pathotype_1", "0", "1"))
 res11.1 = famfiltresultsG
 res11.1 = res11.1[order(res11.1$padj, na.last=NA), ]
 alpha = 0.2
