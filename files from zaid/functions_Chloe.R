@@ -99,7 +99,7 @@ taxa.split.combine.ftn = function(taxa, d.df, l = 7){
 
 ###### No experimental design
 ### species bar plot per sample using most abundant in sample
-bar.taxa.sample.ftn = function(d.df,cutoff=0,xlab="Sample",llab="OTU"){
+bar.taxa.sample.ftn = function(d.df,cutoff=0,xlab="Sample",llab="Phylum"){
   d.rs = apply(d.df,1,sum)
   ln = length(d.rs)
   p.df = d.df/d.rs

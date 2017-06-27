@@ -13,6 +13,8 @@ library("tidyverse")
 library(phyloseq)
 load("Phyloseq files/Cowonly")
 Cowonly
+load("t.df")
+t.df
 library(metagenomeSeq)
 MRexp_cowonly <- phyloseq_to_metagenomeSeq(Cowonly)
 MRexp_cowonly
@@ -28,7 +30,7 @@ dim(d.fam) # features = 290
 
 d.otufilt = filterData(MRexp_cowonly, present = 50, depth = 1)
 dim(d.otufilt) # features = 3531
-Pathotype_new <- factor(t.df$Pathotype_1) #makes it a factor
+Pathotype_new <- factor(t.df$Pathotype_1) #makes it a factor- t.df is the sample_data from Cowonly
 Individual_animalnew <- factor(t.df$Individual_animal)
 d.otufiltnorm = cumNorm(d.otufilt, p = cumNormStatFast(d.otufilt))
 trymod <- model.matrix(~ Pathotype_new + Individual_animalnew - 1, t.df) # makes actual contrasts for pathotype
@@ -96,7 +98,9 @@ fit4 # gives you all sorts of info, p vals assoc for each contrast, stddev, sigm
 fit4 = eBayes(fit4) # looking at the error of the residuals here
 topTable(fit4, confint = TRUE)
 View(topTable(fit4, confint = TRUE))
-
+View(MRcounts(d.sppfilt[5,]))
+coagulans_counts <- MRcounts(d.sppfilt[5,])
+coagulans_counts <- t(coagulans_counts)
 
 ##### FROM final_deseq2.R
 library(DESeq2)

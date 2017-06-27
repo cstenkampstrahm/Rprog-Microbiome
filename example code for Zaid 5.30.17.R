@@ -2,6 +2,8 @@ library(tidyverse)
 library(phyloseq)
 load("Phyloseq files/Cowonly")
 Cowonly
+load("t.df")
+t.df
 library(metagenomeSeq)
 MRexp_cowonly <- phyloseq_to_metagenomeSeq(Cowonly)
 MRexp_cowonly
@@ -89,8 +91,8 @@ DPDOgenpvals <- sapply(1:nrow(DP1gen), function(i){
               paired = TRUE, mu = 0, exact = FALSE)$p.value
 }) 
 DPDOgenpvals <- as.data.frame(DPDOgenpvals, row.names=row.names(DP1gen))
-pval <- DPDOgenpvals[(DPDOgenpvals$DPDOgenpvals<0.1),]
-rownames <- rownames(DPDOgenpvals)[DPDOgenpvals<0.1]
+pval <- DPDOgenpvals[(DPDOgenpvals$DPDOgenpvals<1),]
+rownames <- rownames(DPDOgenpvals)[DPDOgenpvals<1]
 DPDOgenresults <- data.frame(pval, row.names = rownames)
 DPDOgenresults
 #pval

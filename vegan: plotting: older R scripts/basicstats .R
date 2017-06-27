@@ -13,6 +13,8 @@
 load("Phyloseq files/Cowdata") # load this for non normed data
 load("Phyloseq files/Normcowonly") # load this for normed data
 Cowdatarich
+Normcowdatanew
+
 OTUS <- otu_table(Cowdatarich)
 sampledata <- sample_data(Cowdatarich)
 taxa <- tax_table(Cowdatarich)
