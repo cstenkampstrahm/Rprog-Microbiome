@@ -227,6 +227,7 @@ ggplot(table_5, aes(x=Title, y = LogFC, fill = level)) +
   theme(legend.position = "none") +
   theme(axis.title.x = element_blank()) +
   scale_x_discrete(limits = titles_1) +
+  #scale_colour_manual(values = c("turquoise3", "orange", "purple"))
   scale_fill_grey(start = 0.2, end = 0.9)
  
              
@@ -259,7 +260,7 @@ pirellulaceae <- subset(cowonlytaxa, Rank5 %in% "f__Pirellulaceae") # same as ab
 
 ## Want to try to turn a couple of tables into dot plots for easier understanding
 table_6 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 13)
-ggplot(data=table_6, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+all_plot <- ggplot(data=table_6, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
                          color= Alpha_Diversity)) +
   geom_point(size=3)+
   geom_errorbar(width = 0.2)+
@@ -267,17 +268,17 @@ ggplot(data=table_6, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL,
   geom_hline(aes(yintercept=1),color="red") + 
   xlab("") + ylab("Odds Ratio (95% CI)") +
   theme_classic()+
-  scale_x_discrete(labels=c("aEPEC/EHEC vs No O157", "aEPEC/EHEC vs No O157", 
-                            "aEPEC/EHEC vs No O157", "Ever shed vs Never shed",
-                            "Ever shed vs Never shed", "Ever shed vs Never shed",
-                            "Intermittently shed vs Never shed","Intermittently shed vs Never shed",
-                            "Intermittently shed vs Never shed", "Multi-day shed vs Never shed",
-                            "Multi-day shed vs Never shed", "Multi-day shed vs Never shed"))+
+  scale_x_discrete(labels=c("O157 Present", "O157 Present", 
+                            "O157 Present", "Ever shed",
+                            "Ever shed", "Ever shed",
+                            "Intermittent","Intermittent",
+                            "Intermittent", "Multi-day",
+                            "Multi-day", "Multi-day"))+
   coord_flip()
 
 
 table_7 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 10)
-ggplot(data=table_7, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+pathotype_plot <- ggplot(data=table_7, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
                          color= Alpha_Diversity)) +
   geom_point(size=3)+
   geom_errorbar(width = 0.2)+
@@ -285,13 +286,13 @@ ggplot(data=table_7, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL,
   geom_hline(aes(yintercept=1),color="red") + 
   xlab("") + ylab("Odds Ratio (95% CI)") +
   theme_classic()+
-  scale_x_discrete(labels=c("O157 vs None", "O157 vs None", 
-                            "O157 vs None"), name="Pathotype (Sample Level)")+
+  scale_x_discrete(labels=c("O157 present", "O157 present", 
+                            "O157 present"), name="Pathotype (Sample Level)")+
   
   coord_flip()
 
 table_8 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 11)
-ggplot(data=table_8, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+ever_plot <- ggplot(data=table_8, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
                          color= Alpha_Diversity)) +
   geom_point(size=3)+
   geom_errorbar(width = 0.2)+
@@ -299,14 +300,14 @@ ggplot(data=table_8, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL,
   geom_hline(aes(yintercept=1),color="red") + 
   xlab("") + ylab("Odds Ratio (95% CI)") +
   theme_classic()+
-  scale_x_discrete(labels=c("Ever shed vs Never", "Ever shed vs Never", 
-                            "Ever shed vs Never"), name="Ever vs Never (Cow Level)")+
+  scale_x_discrete(labels=c("Ever shed", "Ever shed", 
+                            "Ever shed"), name="Ever vs Never (Cow Level)")+
   
   coord_flip()
 
 
 table_9 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 12)
-ggplot(data=table_9, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+pattern_plot <- ggplot(data=table_9, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
                          color= Alpha_Diversity)) +
   geom_point(size=3)+
   geom_errorbar(width = 0.2)+
@@ -314,9 +315,84 @@ ggplot(data=table_9, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL,
   geom_hline(aes(yintercept=1),color="red") + 
   xlab("") + ylab("Odds Ratio (95% CI)") +
   theme_classic()+
-  scale_x_discrete(labels=c("Intermittent vs Never", "Intermittent vs Never", 
-                            "Intermittent vs Never", "Multi-Day vs Never",
-                            "Multi-Day vs Never", "Multi-Day vs Never"), 
+  scale_x_discrete(labels=c("Intermittent", "Intermittent", 
+                            "Intermittent", "Multi-Day",
+                            "Multi-Day", "Multi-Day"), 
                               name="Pattern (Cow Level)")+
   
   coord_flip()
+
+table_new <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 16)
+table_new$Levels <- as.factor(table_new$Levels)
+ggplot(data=table_new, aes(x = name, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+                           color= Levels)) +
+  geom_point(size=3)+
+  geom_errorbar(width = 0.2)+
+  scale_colour_manual(values = c("turquoise3", "orange")) +
+  geom_hline(aes(yintercept=1),color="red") + 
+  xlab("") + ylab("Odds Ratio (95% CI)") +
+  theme_classic()+
+  scale_y_continuous(limits = c(0.05, 1.25))+
+  scale_x_reverse()+
+  #scale_x_discrete(name="Pattern (Cow Level)", 
+  #                labels= c("Crude", "Parity", "Treatment", "Farm", "Treatment + Parity",
+  #              "Treatment + Farm", "Parity + Farm", "Parity + Farm + Treatment",
+  #             "Crude", "Parity", "Treatment", "Farm", "Treatment + Parity",
+  #            "Treatment + Farm", "Parity + Farm", "Parity + Farm + Treatment")) + 
+  coord_flip()
+
+
+
+
+
+
+
+###################### TRYING STUFF #################
+table_10 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 14)
+pattern_2nd_plot <- ggplot(data=table_10, aes(x = Adjustment, y = OR, ymin = Lower_CL, ymax = Upper_CL,
+                                              color = Levels)) +
+  geom_point(size=3)+
+  geom_errorbar(width = 0.2)+
+  scale_colour_manual(values = c("turquoise3", "orange", "purple")) +
+  geom_hline(aes(yintercept=1),color="red") + 
+  xlab("") + ylab("Odds Ratio (95% CI)") +
+  theme_classic()+
+  scale_x_discrete(labels=c("Crude", "Parity", "Treatment", "Farm", "Treatment + Parity",
+                            "Treatment + Farm", "Parity + Farm", "Parity + Farm + Treatment",
+                            "Crude", "Parity", "Treatment", "Farm", "Treatment + Parity",
+                            "Treatment + Farm", "Parity + Farm", "Parity + Farm + Treatment"), 
+                            name="Pattern (Cow Level)")+
+  scale_y_continuous(limits = c(0.25, 1.75)) +
+  
+  coord_flip()
+
+table_15 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 15)
+try <- ggplot(data=table_15, aes(x = Adjustment, y = OR, ymin = Lower_CL, ymax = Upper_CL,
+                                              color = Levels)) +
+  geom_point(size=3)+
+  geom_errorbar(width = 0.2)+
+  scale_colour_manual(values = c("turquoise3", "orange")) +
+  geom_hline(aes(yintercept=1),color="red") + 
+  xlab("") + ylab("Odds Ratio (95% CI)") +
+  theme_classic()+
+  #scale_x_discrete(labels=c("Crude", "Parity", "Treatment", "Farm", "Treatment + Parity",
+                            #"Treatment + Farm", "Parity + Farm", "Parity + Farm + Treatment",
+                           # "Crude", "Parity", "Treatment", "Farm", "Treatment + Parity",
+                           # "Treatment + Farm", "Parity + Farm", "Parity + Farm + Treatment"), 
+                  # name="Pattern (Cow Level)")+
+  scale_y_continuous(limits = c(0.25, 1.75)) +
+  
+  coord_flip()
+
+  
+
+pattern_plot + scale_x_discrete(labels=c("Crude", "Parity", "Treatment", "Farm", "Treatment + Parity",
+                            "Treatment + Farm", "Parity + Farm", "Parity + Farm + Treatment",
+                             "Crude", "Parity", "Treatment", "Farm", "Treatment + Parity",
+                             "Treatment + Farm", "Parity + Farm", "Parity + Farm + Treatment"), 
+                             name="Pattern (Cow Level)") 
+
+
+                  
+  
+
