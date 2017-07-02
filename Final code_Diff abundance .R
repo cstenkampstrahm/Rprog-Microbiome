@@ -63,6 +63,12 @@ fit2 = eBayes(fit2) # looking at the error of the residuals here
 topTable(fit2, confint = TRUE)
 View(topTable(fit2, confint = TRUE))
 
+View(MRcounts(d.genfilt))
+View(MRcounts(d.genfilt[49,]))
+Moryella_counts <- MRcounts(d.genfilt[49,])
+Moryella_counts <- t(Moryella_counts)
+write.xlsx(Moryella_counts, "Moryella.xlsx")
+
 
 
 d.famfilt = filterData(d.fam, present = 50, depth = 1)
@@ -101,6 +107,7 @@ View(topTable(fit4, confint = TRUE))
 View(MRcounts(d.sppfilt[5,]))
 coagulans_counts <- MRcounts(d.sppfilt[5,])
 coagulans_counts <- t(coagulans_counts)
+write.xlsx(coagulans_counts, "Coagulans.xlsx")
 
 ##### FROM final_deseq2.R
 library(DESeq2)

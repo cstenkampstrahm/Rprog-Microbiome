@@ -253,3 +253,70 @@ acetobacteraceae <- subset(cowonlytaxa, Rank5 %in% "f__Acetobacteraceae") #same 
 BS11 <- subset(cowonlytaxa, Rank5 %in% "f__BS11") #new cleanup reference means found in the final OTU 
 # picking step when using open referencepicking
 pirellulaceae <- subset(cowonlytaxa, Rank5 %in% "f__Pirellulaceae") # same as above, different genuses in this
+
+
+
+
+## Want to try to turn a couple of tables into dot plots for easier understanding
+table_6 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 13)
+ggplot(data=table_6, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+                         color= Alpha_Diversity)) +
+  geom_point(size=3)+
+  geom_errorbar(width = 0.2)+
+  scale_colour_manual(values = c("turquoise3", "orange", "purple")) +
+  geom_hline(aes(yintercept=1),color="red") + 
+  xlab("") + ylab("Odds Ratio (95% CI)") +
+  theme_classic()+
+  scale_x_discrete(labels=c("aEPEC/EHEC vs No O157", "aEPEC/EHEC vs No O157", 
+                            "aEPEC/EHEC vs No O157", "Ever shed vs Never shed",
+                            "Ever shed vs Never shed", "Ever shed vs Never shed",
+                            "Intermittently shed vs Never shed","Intermittently shed vs Never shed",
+                            "Intermittently shed vs Never shed", "Multi-day shed vs Never shed",
+                            "Multi-day shed vs Never shed", "Multi-day shed vs Never shed"))+
+  coord_flip()
+
+
+table_7 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 10)
+ggplot(data=table_7, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+                         color= Alpha_Diversity)) +
+  geom_point(size=3)+
+  geom_errorbar(width = 0.2)+
+  scale_colour_manual(values = c("turquoise3", "orange", "purple")) +
+  geom_hline(aes(yintercept=1),color="red") + 
+  xlab("") + ylab("Odds Ratio (95% CI)") +
+  theme_classic()+
+  scale_x_discrete(labels=c("O157 vs None", "O157 vs None", 
+                            "O157 vs None"), name="Pathotype (Sample Level)")+
+  
+  coord_flip()
+
+table_8 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 11)
+ggplot(data=table_8, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+                         color= Alpha_Diversity)) +
+  geom_point(size=3)+
+  geom_errorbar(width = 0.2)+
+  scale_colour_manual(values = c("turquoise3", "orange", "purple")) +
+  geom_hline(aes(yintercept=1),color="red") + 
+  xlab("") + ylab("Odds Ratio (95% CI)") +
+  theme_classic()+
+  scale_x_discrete(labels=c("Ever shed vs Never", "Ever shed vs Never", 
+                            "Ever shed vs Never"), name="Ever vs Never (Cow Level)")+
+  
+  coord_flip()
+
+
+table_9 <- read.xlsx("excel sheets/Test output for alpha div models.xlsx", 12)
+ggplot(data=table_9, aes(x = Levels, y = OR, ymin = Lower_CL, ymax = Upper_CL, 
+                         color= Alpha_Diversity)) +
+  geom_point(size=3)+
+  geom_errorbar(width = 0.2)+
+  scale_colour_manual(values = c("turquoise3", "orange", "purple")) +
+  geom_hline(aes(yintercept=1),color="red") + 
+  xlab("") + ylab("Odds Ratio (95% CI)") +
+  theme_classic()+
+  scale_x_discrete(labels=c("Intermittent vs Never", "Intermittent vs Never", 
+                            "Intermittent vs Never", "Multi-Day vs Never",
+                            "Multi-Day vs Never", "Multi-Day vs Never"), 
+                              name="Pattern (Cow Level)")+
+  
+  coord_flip()
